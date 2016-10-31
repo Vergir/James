@@ -3,8 +3,8 @@ package dao;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import entities.Developer;
-import entities.Entity;
+import entities.*;
+import entities.Nameable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Connection;
@@ -18,12 +18,10 @@ public final class DatabaseAccessObject {
     private static DatabaseAccessObject instance;
     private static Connection c;
 
-
     private DatabaseAccessObject(){
         if (instance != null)
             throw new ExceptionInInitializerError("Tried to initialize singleton");
     }
-
 
     private static void init(String username, String password){
         final int lPort = 2222;
@@ -66,7 +64,6 @@ public final class DatabaseAccessObject {
             System.err.println("Unknown error when creating a connection...");
         }
     }
-
     public static DatabaseAccessObject getInstance(String username, String password) {
         if (username == null || password == null)
             throw new NullPointerException("username/password combination is invalid");
@@ -76,39 +73,56 @@ public final class DatabaseAccessObject {
         return instance;
     }
 
-    public List<String> GetGames(){
-        ResultSet tmp = null;
-        List<String> result = new ArrayList<String>();
+    public <T extends Entity> List<T> getAll(Class<T> type) {
+        ResultSet results;
+        List<T> entities = new ArrayList<T>();
         try {
-            tmp = c.createStatement().executeQuery("SELECT * FROM GAMES");
-            while (tmp.next())
-                result.add(tmp.getString("Title"));
+            results = c.createStatement().executeQuery("SELECT * FROM " + type.getSimpleName().toUpperCase() + "S");
+            while (results.next())
+                entities.add((T)type.newInstance().fromResultSet(results));
         }
-        catch (SQLException e) {
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return entities;
+    }
+    public <T extends Entity & Nameable> T getByName(Class<T> type, String name) {
+        String dbName;
+        if (type.equals(User.class))
+            dbName = "UserInfo.NickName";
+        else if (type.equals(Game.class))
+            dbName = "Title";
+        else
+            dbName = "Name";
+
+        T result = null;
+        try {
+            ResultSet results = c.createStatement().executeQuery("SELECT r.* FROM " + type.getSimpleName().toUpperCase()
+                    + "S r WHERE r." + dbName + " = "  + name);
+            result = (T)type.newInstance().fromResultSet(results);
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
         return result;
     }
 
-    private List<Developer> getAllDevelopers(){
-        ResultSet results = null;
-        List<Developer> devs = new ArrayList<>();
-        try {
-            results = c.createStatement().executeQuery("SELECT * FROM DEVELOPERS");
-            while (results.next()) {
-                devs.add(new Developer(results.getInt(1), results.getString(2), results.getString(3), results.getString(4)));
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return devs;
+    public int merge(Entity e){
+        throw new NotImplementedException();
     }
 
-    public <T extends Entity> List<T> getAll(Class<T> type) {
+    public int merge(List<Entity> entities){
+        throw new NotImplementedException();
+    }
 
-        if (type.equals(Developer.class))
-            return (List<T>)getAllDevelopers();
+    public int delete(Entity e){
+        throw new NotImplementedException();
+    }
+    public int delete(List<Entity> entities){
+        throw new NotImplementedException();
+    }
+
+    public ResultSet execute(String query){
         throw new NotImplementedException();
     }
 }
