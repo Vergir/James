@@ -1,5 +1,6 @@
 import com.jcraft.jsch.*;
 import dao.DatabaseAccessObject;
+import entities.Developer;
 
 import javax.xml.crypto.Data;
 import java.sql.DriverManager;
@@ -25,8 +26,7 @@ public class Main{
 
         DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
 
-        for (String game : dao.GetGames()) {
-            System.out.println(game);
-        }
+        for (Developer d : dao.getAll(Developer.class))
+            System.out.println(d.getName());
     }
 }
