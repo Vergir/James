@@ -20,12 +20,6 @@ public class Developer implements Entity, Nameable {
         this.email = email;
     }
 
-    public Developer(int id, String name, String address, String email) {
-        this(name, address, email);
-        this.id = id;
-    }
-
-
     @Override
     public Entity fromResultSet(ResultSet rs) {
         try {

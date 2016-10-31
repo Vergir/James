@@ -23,10 +23,8 @@ public class Main{
         }
         username = arg[0];
         password = arg[1];
-
         DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
 
-        for (Developer d : dao.getAll(Developer.class))
-            System.out.println(d.getName());
+        // UI/menu code goes here
     }
 }
