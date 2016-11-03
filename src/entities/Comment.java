@@ -27,7 +27,7 @@ public class Comment implements Entity {
         this.content = content;
         this.c_Date = c_Date;
     }
-    public Comment(int id, int user_id, int game_id,int score,String content, Date c_Date) {
+    private Comment(int id, int user_id, int game_id,int score,String content, Date c_Date) {
         this(user_id,game_id,score,content,c_Date);
         this.id = id;
     }

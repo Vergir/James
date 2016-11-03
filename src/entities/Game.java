@@ -30,7 +30,7 @@ public class Game implements Entity,Nameable {
         this.product_type=product_type;
     }
 
-    public Game (int id, String title, String description, Blob cover, int price, Date released, String product_type){
+    private Game (int id, String title, String description, Blob cover, int price, Date released, String product_type){
         this(title,description,cover,price,released,product_type);
         this.id=id;
     }

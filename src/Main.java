@@ -1,18 +1,8 @@
-import com.jcraft.jsch.*;
+
 import dao.DatabaseAccessObject;
-import entities.Developer;
-
-import javax.xml.crypto.Data;
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static java.lang.System.in;
-
+import entities.User;
 
 public class Main{
-
     static String username;
     static String password;
 
@@ -24,6 +14,13 @@ public class Main{
         username = arg[0];
         password = arg[1];
         DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
+
+        for (User u : dao.getAll(User.class))
+            System.out.println(u.getName());
+
+        User Nik = dao.getById(User.class, 1);
+
+        System.out.println(Nik.getName() + "  ||| " + Nik.getId());
 
         // UI/menu code goes here
     }

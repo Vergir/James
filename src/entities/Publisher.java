@@ -27,7 +27,7 @@ public class Publisher implements Entity, Nameable {
         this.email = email;
     }
 
-    public Publisher(int id, String name, String address, String email) {
+    private Publisher(int id, String name, String address, String email) {
         this(name, address, email);
         this.id = id;
     }

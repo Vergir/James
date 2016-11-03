@@ -23,7 +23,7 @@ public class Transaction implements Entity{
         this.sum = sum;
         this.t_Date = t_Date;
     }
-    public Transaction(int id, int user_id, int sum, Date t_Date) {
+    private Transaction(int id, int user_id, int sum, Date t_Date) {
         this(user_id,sum,t_Date);
         this.id = id;
     }
