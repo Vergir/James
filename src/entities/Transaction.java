@@ -74,8 +74,4 @@ public class Transaction implements Entity{
                 "\n Sum: "+sum+
                 "\n T_Date: "+t_Date+"\n";
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 }

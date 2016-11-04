@@ -61,10 +61,6 @@ public class User implements Entity, Nameable{
         return nickName;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getNickName() {
         return nickName;
     }

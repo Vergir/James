@@ -62,10 +62,6 @@ public class Game implements Entity,Nameable {
         return title;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getTitle() {
         return title;
     }

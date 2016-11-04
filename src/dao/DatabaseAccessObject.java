@@ -268,7 +268,7 @@ public final class DatabaseAccessObject {
                 else if (fields[i].getType().equals(Date.class))
                     values.add("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"'");
                 else
-                    values.add(fields[i].get(e).toString());
+                    values.add(fields[i].get(e) != null ? fields[i].get(e).toString() : null);
             }
         }
         catch (Exception ex) {

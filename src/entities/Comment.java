@@ -14,7 +14,7 @@ public class Comment implements Entity {
     private int game_id;
     private int score;
     private String content;
-    private java.sql.Date c_Date;
+    private Date c_Date;
 
     public Comment(){}
     public Comment(int user_id, int game_id, int score, String content, Date c_Date){
@@ -93,9 +93,5 @@ public class Comment implements Entity {
                 "\n Score: "+score+
                 "\n Content: "+content+
                 "\n Email: "+c_Date+"\n";
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 }

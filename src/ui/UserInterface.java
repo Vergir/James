@@ -114,7 +114,7 @@ public class UserInterface {
                     System.out.println("There is no User with this name \n");
                 break;
             case 3:
-                u = createUser();
+                u = fillUser(null);
                 dao.merge(u);
                 System.out.println("\n");
                 break;
@@ -129,13 +129,7 @@ public class UserInterface {
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
                 u = dao.getById(User.class,user_id);
-                if(u==null)
-                    u=createUser();
-                else {
-                    int id=u.getId();
-                    u=createUser();
-                    u.setId(id);
-                }
+                u=fillUser(u);
                 dao.merge(u);
                 System.out.println("\n");
                 break;
@@ -184,7 +178,7 @@ public class UserInterface {
                     System.out.println("There is no User with this id");
                 break;
             case 3:
-                g = createGame();
+                g = fillGame(null);
                 dao.merge(g);
                 break;
             case 4:
@@ -198,11 +192,9 @@ public class UserInterface {
                 game_id = reader.nextInt();
                 g = dao.getById(Game.class,game_id);
                 if(g==null)
-                    g=createGame();
+                    g=fillGame(null);
                 else {
-                    int id=g.getId();
-                    g=createGame();
-                    g.setId(id);
+                    g=fillGame(g);
                 }
                 dao.merge(g);
                 System.out.println("\n");
@@ -252,7 +244,7 @@ public class UserInterface {
                     System.out.println(d.toString());
                 break;
             case 3:
-                d=createDeveloper();
+                d=fillDeveloper(null);
                 dao.merge(d);
                 break;
             case 4:
@@ -265,13 +257,7 @@ public class UserInterface {
                 System.out.println("Enter id of Developer:");
                 dev_id = reader.nextInt();
                 d = dao.getById(Developer.class,dev_id);
-                if(d==null)
-                    d=createDeveloper();
-                else {
-                    int id=d.getId();
-                    d=createDeveloper();
-                    d.setId(id);
-                }
+                d=fillDeveloper(d);
                 dao.merge(d);
                 System.out.println("\n");
                 break;
@@ -319,7 +305,7 @@ public class UserInterface {
                     System.out.println(p.toString());
                 break;
             case 3:
-                p=createPublisher();
+                p=fillPublisher(null);
                 dao.merge(p);
                 break;
             case 4:
@@ -332,13 +318,7 @@ public class UserInterface {
                 System.out.println("Enter id of Publisher:");
                 pub_id = reader.nextInt();
                 p = dao.getById(Publisher.class,pub_id);
-                if(p==null)
-                    p=createPublisher();
-                else {
-                    int id=p.getId();
-                    p=createPublisher();
-                    p.setId(id);
-                }
+                p=fillPublisher(p);
                 dao.merge(p);
                 System.out.println("\n");
                 break;
@@ -377,7 +357,7 @@ public class UserInterface {
                     System.out.println(c.toString());
                 break;
             case 2:
-                c=createComment();
+                c=fillComment(null);
                 dao.merge(c);
                 break;
             case 3:
@@ -390,13 +370,7 @@ public class UserInterface {
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
                 c = dao.getById(Comment.class,com_id);
-                if(c==null)
-                    c=createComment();
-                else {
-                    int id=c.getId();
-                    c=createComment();
-                    c.setId(id);
-                }
+                c=fillComment(c);
                 dao.merge(c);
                 System.out.println("\n");
                 break;
@@ -435,7 +409,7 @@ public class UserInterface {
                     System.out.println(t.toString());
                 break;
             case 2:
-                t = createTransaction();
+                t = fillTransaction(null);
                 dao.merge(t);
                 break;
             case 3:
@@ -448,13 +422,7 @@ public class UserInterface {
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
                 t = dao.getById(Transaction.class,tra_id);
-                if(t==null)
-                    t=createTransaction();
-                else {
-                    int id=t.getId();
-                    t=createTransaction();
-                    t.setId(id);
-                }
+                t=fillTransaction(t);
                 dao.merge(t);
                 System.out.println("\n");
                 break;
@@ -466,7 +434,7 @@ public class UserInterface {
         }
     }
 
-    private static User createUser() throws IOException {
+    private static User fillUser(User u) throws IOException {
         System.out.println("Enter parameters for User:");
         System.out.println("\nNickname: ");
         String user_nick = breader.readLine();
@@ -476,10 +444,17 @@ public class UserInterface {
         String user_last = breader.readLine();
         System.out.println("\nEmail name: ");
         String user_email = breader.readLine();
-
-        return new User(user_nick,user_first,user_last,user_email);
+        if(u!=null) {
+            u.setNickName(user_nick);
+            u.setFirstName(user_first);
+            u.setLastName(user_last);
+            u.setEmail(user_email);
+        }
+        else
+            u = new User(user_nick,user_first,user_last,user_email);
+        return u;
     }
-    private static Game createGame() throws IOException {
+    private static Game fillGame(Game g) throws IOException {
         System.out.println("Enter parameters for Game:");
         System.out.println("\nTitle: ");
         String game_title = breader.readLine();
@@ -489,9 +464,17 @@ public class UserInterface {
         int game_price = reader.nextInt();
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
-        return new Game(game_title,game_description,null,game_price,today,game_producttype);
+        if(g!=null){
+            g.setPrice(game_price);
+            g.setDescription(game_description);
+            g.setProduct_type(game_producttype);
+            g.setTitle(game_title);
+        }
+        else
+            g= new Game(game_title,game_description,null,game_price,today,game_producttype);
+        return g;
     }
-    private static Developer createDeveloper() throws IOException {
+    private static Developer fillDeveloper(Developer d) throws IOException {
         System.out.println("Enter parameters for Developer:");
         System.out.println("\nName: ");
         String dev_name = breader.readLine();
@@ -499,9 +482,16 @@ public class UserInterface {
         String dev_address = breader.readLine();
         System.out.println("\nEmail: ");
         String dev_email = breader.readLine();
-        return new Developer(dev_name,dev_address,dev_email);
+        if(d!=null){
+            d.setEmail(dev_email);
+            d.setAddress(dev_address);
+            d.setName(dev_name);
+        }
+        else
+            d = new Developer(dev_name,dev_address,dev_email);
+        return d;
     }
-    private static Publisher createPublisher() throws IOException {
+    private static Publisher fillPublisher(Publisher p) throws IOException {
         System.out.println("Enter parameters for Publisher:");
         System.out.println("\nName: ");
         String pub_name = breader.readLine();
@@ -509,9 +499,16 @@ public class UserInterface {
         String pub_address = breader.readLine();
         System.out.println("\nEmail: ");
         String pub_email = breader.readLine();
-        return new Publisher(pub_name,pub_address,pub_email);
+        if(p!=null){
+            p.setEmail(pub_email);
+            p.setName(pub_name);
+            p.setAddress(pub_address);
+        }
+        else
+            p = new Publisher(pub_name,pub_address,pub_email);
+        return p;
     }
-    private static Comment createComment() throws IOException {
+    private static Comment fillComment(Comment c) throws IOException {
         System.out.println("Enter parameters for Comment:");
         System.out.println("\nUser_id: ");
         int com_user_id = reader.nextInt();
@@ -521,15 +518,29 @@ public class UserInterface {
         int com_score = reader.nextInt();
         System.out.println("\nContent: ");
         String com_content = breader.readLine();
-        return new Comment(com_user_id,com_game_id,com_score,com_content,today);
+        if(c!=null){
+            c.setContent(com_content);
+            c.setGame_id(com_game_id);
+            c.setUser_id(com_user_id);
+            c.setScore(com_score);
+        }
+        else
+            c = new Comment(com_user_id,com_game_id,com_score,com_content,today);
+        return c;
     }
-    private static Transaction createTransaction(){
+    private static Transaction fillTransaction(Transaction t){
         System.out.println("Enter parameters for Transaction:");
         System.out.println("\nUser_id: ");
         int tra_user_id = reader.nextInt();
         System.out.println("\nSum: ");
         int tra_sum = reader.nextInt();
-        return new Transaction(tra_user_id,tra_sum,today);
+        if(t!=null){
+            t.setUser_id(tra_user_id);
+            t.setSum(tra_sum);
+        }
+        else
+            t= new Transaction(tra_user_id,tra_sum,today);
+        return t;
     }
 
     public static void setUsername(String username) {
