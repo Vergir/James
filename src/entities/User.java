@@ -1,38 +1,37 @@
 package entities;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Date;
 
 /**
  * Created by Vergir on 31/10/2016.
  */
 public class User implements Entity, Nameable{
+
+
     int id;
-    String nickname;
-    String first_name;
-    String last_name;
+    String nickName;
+    String firstName;
+    String lastName;
     String email;
-    Date registration;
+    Date registered;
     int balance;
 
     public User(){}
 
-    public User(String nick, String first, String last, String email, Date reg, int balance){
-        if (nick == null || first == null || last == null || email == null || reg == null)
+    public User(String nick, String first, String last, String email){
+        if (nick == null || first == null || last == null || email == null)
             throw new NullPointerException("initialization info for User is invalid");
 
-        this.nickname = nick;
-        this.first_name = first;
-        this.last_name = last;
+        nickName = nick;
+        firstName = first;
+        lastName = last;
         this.email = email;
-        this.registration = reg;
-        this.balance = balance;
     }
 
-    public User (int i, String nick, String first, String last, String email, Date reg, int balance){
-        this(nick,first,last,email,reg,balance);
-        this.id=i;
+    private User (int id, String nick, String first, String last, String email){
+        this(nick,first,last,email);
+        this.id=id;
     }
 
 
@@ -45,14 +44,13 @@ public class User implements Entity, Nameable{
     public Entity fromResultSet(ResultSet rs) {
         try {
             this.id = rs.getInt("Id");
-            this.nickname = rs.getString("Nickname");
-            this.first_name = rs.getString("First_name");
-            this.last_name = rs.getString("Last_name");
-            this.email = rs.getString("Email");
-            this.registration = rs.getDate("Registration");
-            this.balance = rs.getInt("Balance");
+            this.nickName = rs.getString(2);
+            this.firstName = rs.getString(3);
+            this.lastName = rs.getString(4);
+            this.email = rs.getString(5);
+            this.registered = rs.getDate(6);
         }
-        catch (SQLException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
         return this;
@@ -60,48 +58,69 @@ public class User implements Entity, Nameable{
 
     @Override
     public String getName() {
-        return nickname;
+        return nickName;
     }
-    public String getnickname (){
-        return nickname;
+
+    public void setId(int id) {
+        this.id = id;
     }
-    public String getfirst_name (){
-        return first_name;
+
+    public String getNickName() {
+        return nickName;
     }
-    public String getlast_name (){
-        return last_name;
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
-    public String getemail (){
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
         return email;
     }
-    public Date getregistration(){
-        return registration;
+
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public int getBalance(){
+
+    public Date getRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(Date registered) {
+        this.registered = registered;
+    }
+
+    public int getBalance() {
         return balance;
     }
 
-    public void setnickname(String n){
-        this.nickname=n;
-    }
-    public void setfirst_name(String n){
-        this.first_name=n;
-    }
-    public void setlast_name(String n){
-        this.last_name=n;
-    }
-    public void setemail(String e){
-        this.email=e;
-    }
-    public void setregistration(Date r){
-        this.registration=r;
-    }
-    public void setBalance(int b){
-        this.balance=b;
+    public void setBalance(int balance) {
+        this.balance = balance;
     }
 
     @Override
     public String toString(){
-        return "";
+        return "User: \n" +
+                " Nickname: "+nickName+
+                "\n First Name: "+firstName+
+                "\n Last Name: "+ lastName+
+                "\n Email: "+email+
+                "\n Regestered: "+registered+
+                "\n Balance: "+balance +"\n";
     }
 }

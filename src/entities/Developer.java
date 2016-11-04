@@ -60,4 +60,12 @@ public class Developer implements Entity, Nameable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString(){
+        return "Game: \n" +
+                " Name: "+name+
+                "\n Address: "+address+
+                "\n Email: "+email+"\n";
+    }
 }

@@ -27,7 +27,7 @@ public class Publisher implements Entity, Nameable {
         this.email = email;
     }
 
-    public Publisher(int id, String name, String address, String email) {
+    private Publisher(int id, String name, String address, String email) {
         this(name, address, email);
         this.id = id;
     }
@@ -71,6 +71,14 @@ public class Publisher implements Entity, Nameable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString(){
+        return "Game: \n" +
+                " Name: "+name+
+                "\n Address: "+address+
+                "\n Email: "+email+"\n";
     }
 }
 

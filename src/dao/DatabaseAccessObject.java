@@ -5,13 +5,10 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import entities.*;
 import entities.Nameable;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import oracle.jdbc.internal.OracleTypes;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +24,177 @@ public final class DatabaseAccessObject {
             throw new ExceptionInInitializerError("Tried to initialize singleton");
     }
 
+    public static DatabaseAccessObject getInstance(String username, String password) {
+        if (username == null || password == null)
+            throw new NullPointerException("username/password combination is invalid");
+        init(username, password);
+        if (instance == null)
+            instance = new DatabaseAccessObject();
+        return instance;
+    }
+
+
+    //C*U*
+    public void merge(Entity e){
+        if (e.getClass().equals(User.class)) {
+            AddUser((User)e);
+            return;
+        }
+
+        Entity search = getById(e.getClass(), e.getId());
+        String sql;
+        if (search == null)
+            sql = prepareInsertStatement(e);
+        else
+            sql = prepareUpdateStatement(e);
+
+        try {
+            c.createStatement().executeUpdate(sql);
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+
+    }
+
+    //*R**
+    public <T extends Entity> List<T> getAll(Class<T> returnType) {
+        if (returnType.equals(User.class))
+            return (List<T>)getAllUsers();
+        ResultSet results;
+        List<T> entities = new ArrayList<T>();
+        try {
+            results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase() + "S");
+            while (results.next())
+                entities.add((T)returnType.newInstance().fromResultSet(results));
+        }
+        catch (Exception e) {
+            System.err.print(e.getMessage());
+        }
+        return entities;
+    }
+    public <T extends Entity> T getById(Class<T> returnType, int id) {
+        if (returnType.equals(User.class)) {
+            for (User u : getAllUsers())
+                if (u.getId() == id)
+                    return (T)u;
+            return null;
+        }
+        T entity = null;
+        try {
+            ResultSet results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase()
+                    + "S WHERE Id = " + id);
+            if (results.next())
+                entity = (T)returnType.newInstance().fromResultSet(results);
+        }
+        catch (Exception e){
+            System.err.print(e.getMessage());
+        }
+        return entity;
+    }
+    public <T extends Entity & Nameable> T getByName(Class<T> returnType, String name) {
+        String dbName;
+        if (returnType.equals(User.class))
+            return (T)getUserByName(name);
+        if (returnType.equals(Game.class))
+            dbName = "Title";
+        else
+            dbName = "Name";
+
+        T entity = null;
+        try {
+            ResultSet results = c.createStatement().executeQuery("SELECT r.* FROM " + returnType.getSimpleName().toUpperCase()
+                    + "S r WHERE r." + dbName + " = '"  + name + "'");
+            if (results.next())
+                entity = (T)returnType.newInstance().fromResultSet(results);
+        }
+        catch (Exception e){
+            System.err.print(e.getMessage());
+        }
+        return entity;
+    }
+
+    //***D
+    public void delete(Entity e) {
+        try {
+            c.createStatement().executeUpdate("DELETE FROM "+e.getClass().getSimpleName() + "S WHERE Id = "+e.getId());
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+    }
+
+    //QOL-method
+    public ResultSet executeSelect(String query){
+        ResultSet rs = null;
+        try {
+            rs = c.createStatement().executeQuery(query);
+        }
+        catch(Exception e) {
+            System.err.print(e.getMessage());
+        }
+        return rs;
+    }
+
+    //PL/SQL-calling methods
+    private Integer AddUser(User u) {
+        Integer result = null;
+
+        //Remake as MergeUser;
+        try {
+            CallableStatement addUser = c.prepareCall("begin ? := Crud.AddUser( ?, ?, ?, ? ); end;");
+            addUser.registerOutParameter(1, Types.NUMERIC);
+            addUser.setString(2, u.getName());
+            addUser.setString(3, u.getFirstName());
+            addUser.setString(4, u.getLastName());
+            addUser.setString(5, u.getEmail());
+            addUser.execute();
+            result = addUser.getInt(1);
+            addUser.close();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return result;
+    }
+    private List<User> getAllUsers() {
+        List<User> users = new ArrayList<User>();
+        try {
+            CallableStatement readUsers = c.prepareCall("begin ? := Crud.ReadUser( ? ); end;");
+            readUsers.registerOutParameter(1, OracleTypes.CURSOR);
+            readUsers.setNull(2, Types.NULL);
+            readUsers.execute();
+            ResultSet rs = (ResultSet)readUsers.getObject(1);
+            while (rs.next())
+                users.add((User)new User().fromResultSet(rs));
+            readUsers.close();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return users;
+
+    }
+    private User getUserByName(String nickName) {
+        User u = null;
+
+        try {
+            CallableStatement readUser = c.prepareCall("begin ? := Crud.ReadUser( ? ); end;");
+            readUser.registerOutParameter(1, OracleTypes.CURSOR);
+            readUser.setString(2, nickName);
+            readUser.execute();
+            ResultSet rs = (ResultSet)readUser.getObject(1);
+            if (rs.next())
+                u = (User)new User().fromResultSet(rs);
+            readUser.close();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return u;
+    }
+
+    //Service methods
     private static void init(String username, String password){
         final int lPort = 2222;
         final int rPort = 1521;
@@ -59,7 +227,7 @@ public final class DatabaseAccessObject {
 
         try {
             c = DriverManager.getConnection("jdbc:oracle:thin:@"+rHost+":"+lPort+":"+sid, username, password);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println("Connection to DB failed...");
             e.printStackTrace();
         }
@@ -68,65 +236,6 @@ public final class DatabaseAccessObject {
             System.err.println("Unknown error when creating a connection...");
         }
     }
-    public static DatabaseAccessObject getInstance(String username, String password) {
-        if (username == null || password == null)
-            throw new NullPointerException("username/password combination is invalid");
-        init(username, password);
-        if (instance == null)
-            instance = new DatabaseAccessObject();
-        return instance;
-    }
-
-    public <T extends Entity> List<T> getAll(Class<T> type) {
-        ResultSet results;
-        List<T> entities = new ArrayList<T>();
-        try {
-            results = c.createStatement().executeQuery("SELECT * FROM " + type.getSimpleName().toUpperCase() + "S");
-            while (results.next())
-                entities.add((T)type.newInstance().fromResultSet(results));
-        }
-        catch (Exception e) {
-            System.err.print(e.getMessage());
-        }
-        return entities;
-    }
-    public <T extends Entity> T getById(Class<T> type, int id) {
-        T entity = null;
-        try {
-            String s = "SELECT * FROM " + type.getSimpleName().toUpperCase()
-                    + "S WHERE Id = " + id;
-            ResultSet results = c.createStatement().executeQuery("SELECT * FROM " + type.getSimpleName().toUpperCase()
-                    + "S WHERE Id = " + id);
-            if (results.next())
-                entity = (T)type.newInstance().fromResultSet(results);
-        }
-        catch (Exception e){
-            System.err.print(e.getMessage());
-        }
-        return entity;
-    }
-    public <T extends Entity & Nameable> T getByName(Class<T> type, String name) {
-        String dbName;
-        if (type.equals(User.class))
-            dbName = "UserInfo.NickName";
-        else if (type.equals(Game.class))
-            dbName = "Title";
-        else
-            dbName = "Name";
-
-        T entity = null;
-        try {
-            ResultSet results = c.createStatement().executeQuery("SELECT r.* FROM " + type.getSimpleName().toUpperCase()
-                    + "S r WHERE r." + dbName + " = '"  + name + "'");
-            if (results.next())
-                entity = (T)type.newInstance().fromResultSet(results);
-        }
-        catch (Exception e){
-            System.err.print(e.getMessage());
-        }
-        return entity;
-    }
-
     private String prepareInsertStatement(Entity e) {
         String dateFormat = "YYYY-MM-DD";
         DateFormat df = new SimpleDateFormat(dateFormat);
@@ -193,30 +302,6 @@ public final class DatabaseAccessObject {
         return sb.toString();
     }
 
-    public void merge(Entity e){
-        Entity search = getById(e.getClass(), e.getId());
-        String sql;
-        if (search == null)
-            sql = prepareInsertStatement(e);
-        else
-            sql = prepareUpdateStatement(e);
-
-        try {
-            c.createStatement().executeUpdate(sql);
-        }
-        catch (Exception ex) {
-            System.err.print(ex.getMessage());
-        }
-
-    }
-    public void delete(Entity e) {
-        try {
-            c.createStatement().executeUpdate("DELETE FROM "+e.getClass().getSimpleName() + "S WHERE Id = "+e.getId());
-        }
-        catch (Exception ex) {
-            System.err.print(ex.getMessage());
-        }
-    }
     public ResultSet execute(String query){
         ResultSet rs = null;
         try {
@@ -227,6 +312,4 @@ public final class DatabaseAccessObject {
         }
         return rs;
     }
-
-
 }

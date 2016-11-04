@@ -27,7 +27,7 @@ public class Comment implements Entity {
         this.content = content;
         this.c_Date = c_Date;
     }
-    public Comment(int id, int user_id, int game_id,int score,String content, Date c_Date) {
+    private Comment(int id, int user_id, int game_id,int score,String content, Date c_Date) {
         this(user_id,game_id,score,content,c_Date);
         this.id = id;
     }
@@ -65,7 +65,7 @@ public class Comment implements Entity {
     public String getContent() {
         return content;
     }
-    public Date getc_Date() {
+    public Date getC_Date() {
         return c_Date;
     }
 
@@ -81,7 +81,17 @@ public class Comment implements Entity {
     public void setContent(String content) {
         this.content = content;
     }
-    public void setc_Date(Date c_Date) {
+    public void setC_Date(Date c_Date) {
         this.c_Date = c_Date;
+    }
+
+    @Override
+    public String toString(){
+        return "Game: \n" +
+                " User_id: "+user_id+
+                "\n Game_id: "+game_id+
+                "\n Score: "+score+
+                "\n Content: "+content+
+                "\n Email: "+c_Date+"\n";
     }
 }
