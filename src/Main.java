@@ -25,17 +25,9 @@ public class Main{
             username = br.readLine();
             password = br.readLine();
         }
-        /*DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
-
-        for (User u : dao.getAll(User.class))
-            System.out.println(u.getName());
-
-        User Nik = dao.getById(User.class, 1);
-
-        System.out.println(Nik.getName() + " | id : " + Nik.getId());
-*/
+        //DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
+        //System.out.println(dao.getSeqValue("Comment"));
         // UI/menu code goes here
-
         UserInterface.start(username,password);
 
     }

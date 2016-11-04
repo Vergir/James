@@ -83,6 +83,7 @@ public class UserInterface {
                 "2. Get user by Name \n" +
                 "3. Create User \n" +
                 "4. Delete User by Name \n" +
+                "5. Update User by Id" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -92,10 +93,11 @@ public class UserInterface {
             System.out.println("Wrong input");
         }
         User u;
+        int user_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of user:");
-                int user_id = reader.nextInt();
+                user_id = reader.nextInt();
                 u = dao.getById(User.class,user_id);
                 if(u!=null)
                     System.out.println(u.toString());
@@ -112,17 +114,7 @@ public class UserInterface {
                     System.out.println("There is no User with this name \n");
                 break;
             case 3:
-                System.out.println("Enter parameters for User:");
-                System.out.println("\nNickname: ");
-                String user_nick = breader.readLine();
-                System.out.println("\nFirst name: ");
-                String user_first = breader.readLine();
-                System.out.println("\nLast name: ");
-                String user_last = breader.readLine();
-                System.out.println("\nEmail name: ");
-                String user_email = breader.readLine();
-
-                u=new User(user_nick,user_first,user_last,user_email);
+                u = createUser();
                 dao.merge(u);
                 System.out.println("\n");
                 break;
@@ -131,6 +123,20 @@ public class UserInterface {
                 String Name_del = breader.readLine();
                 u=dao.getByName(User.class,Name_del);
                 dao.delete(u);
+                System.out.println("\n");
+                break;
+            case 5:
+                System.out.println("Enter id of user:");
+                user_id = reader.nextInt();
+                u = dao.getById(User.class,user_id);
+                if(u==null)
+                    u=createUser();
+                else {
+                    int id=u.getId();
+                    u=createUser();
+                    u.setId(id);
+                }
+                dao.merge(u);
                 System.out.println("\n");
                 break;
             case 0:
@@ -147,6 +153,7 @@ public class UserInterface {
                 "2. Get Game by Name \n" +
                 "3. Create Game \n" +
                 "4. Delete Game by Name \n" +
+                "5. Update Game by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -156,10 +163,11 @@ public class UserInterface {
             System.out.println("Wrong input");
         }
         Game g;
+        int game_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Game:");
-                int game_id = reader.nextInt();
+                game_id = reader.nextInt();
                 g = dao.getById(Game.class,game_id);
                 if(g!=null)
                     System.out.println(g.toString());
@@ -176,16 +184,7 @@ public class UserInterface {
                     System.out.println("There is no User with this id");
                 break;
             case 3:
-                System.out.println("Enter parameters for Game:");
-                System.out.println("\nTitle: ");
-                String game_title = breader.readLine();
-                System.out.println("\nDescription: ");
-                String game_description = breader.readLine();
-                System.out.println("\n Price: ");
-                int game_price = reader.nextInt();
-                System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
-                String game_producttype = breader.readLine();
-                g=new Game(game_title,game_description,null,game_price,today,game_producttype);
+                g = createGame();
                 dao.merge(g);
                 break;
             case 4:
@@ -193,6 +192,20 @@ public class UserInterface {
                 String Name_del = breader.readLine();
                 g=dao.getByName(Game.class,Name_del);
                 dao.delete(g);
+                break;
+            case 5:
+                System.out.println("Enter id of Game:");
+                game_id = reader.nextInt();
+                g = dao.getById(Game.class,game_id);
+                if(g==null)
+                    g=createGame();
+                else {
+                    int id=g.getId();
+                    g=createGame();
+                    g.setId(id);
+                }
+                dao.merge(g);
+                System.out.println("\n");
                 break;
             case 0:
                 break;
@@ -208,6 +221,7 @@ public class UserInterface {
                 "2. Get Developer by Name \n" +
                 "3. Create Developer \n" +
                 "4. Delete Developer by Name \n" +
+                "5. Update Developer by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -217,10 +231,11 @@ public class UserInterface {
             System.out.println("Wrong input");
         }
         Developer d;
+        int dev_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Developer:");
-                int dev_id = reader.nextInt();
+                dev_id = reader.nextInt();
                 d = dao.getById(Developer.class,dev_id);
                 if(d==null)
                     System.out.println("There is no Developer with this id");
@@ -237,14 +252,7 @@ public class UserInterface {
                     System.out.println(d.toString());
                 break;
             case 3:
-                System.out.println("Enter parameters for Developer:");
-                System.out.println("\nName: ");
-                String dev_name = breader.readLine();
-                System.out.println("\nAddress: ");
-                String dev_address = breader.readLine();
-                System.out.println("\nEmail: ");
-                String dev_email = breader.readLine();
-                d=new Developer(dev_name,dev_address,dev_email);
+                d=createDeveloper();
                 dao.merge(d);
                 break;
             case 4:
@@ -252,6 +260,20 @@ public class UserInterface {
                 String Name_del = breader.readLine();
                 d=dao.getByName(Developer.class,Name_del);
                 dao.delete(d);
+                break;
+            case 5:
+                System.out.println("Enter id of Developer:");
+                dev_id = reader.nextInt();
+                d = dao.getById(Developer.class,dev_id);
+                if(d==null)
+                    d=createDeveloper();
+                else {
+                    int id=d.getId();
+                    d=createDeveloper();
+                    d.setId(id);
+                }
+                dao.merge(d);
+                System.out.println("\n");
                 break;
             case 0:
                 break;
@@ -267,6 +289,7 @@ public class UserInterface {
                 "2. Get Publisher by Name \n" +
                 "3. Create Publisher \n" +
                 "4. Delete Publisher by Name \n" +
+                "5. Update Publisher by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -296,21 +319,28 @@ public class UserInterface {
                     System.out.println(p.toString());
                 break;
             case 3:
-                System.out.println("Enter parameters for Publisher:");
-                System.out.println("\nName: ");
-                String pub_name = breader.readLine();
-                System.out.println("\nAddress: ");
-                String pub_address = breader.readLine();
-                System.out.println("\nEmail: ");
-                String pub_email = breader.readLine();
-                p=new Publisher(pub_name,pub_address,pub_email);
+                p=createPublisher();
                 dao.merge(p);
                 break;
             case 4:
-                System.out.println("Enter name of Comment:");
+                System.out.println("Enter name of Publisher:");
                 String Name_del = breader.readLine();
                 p=dao.getByName(Publisher.class,Name_del);
                 dao.delete(p);
+                break;
+            case 5:
+                System.out.println("Enter id of Publisher:");
+                pub_id = reader.nextInt();
+                p = dao.getById(Publisher.class,pub_id);
+                if(p==null)
+                    p=createPublisher();
+                else {
+                    int id=p.getId();
+                    p=createPublisher();
+                    p.setId(id);
+                }
+                dao.merge(p);
+                System.out.println("\n");
                 break;
             case 0:
                 break;
@@ -325,6 +355,7 @@ public class UserInterface {
                 "1. Get Comment by Id \n" +
                 "2. Create Comment \n" +
                 "3. Delete Comment by Id \n" +
+                "4. Update Comment by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -334,10 +365,11 @@ public class UserInterface {
             System.out.println("Wrong input");
         }
         Comment c;
+        int com_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Comment:");
-                int com_id = reader.nextInt();
+                com_id = reader.nextInt();
                 c = dao.getById(Comment.class,com_id);
                 if(c==null)
                     System.out.println("There is no Comment with this id");
@@ -345,16 +377,7 @@ public class UserInterface {
                     System.out.println(c.toString());
                 break;
             case 2:
-                System.out.println("Enter parameters for Comment:");
-                System.out.println("\nUser_id: ");
-                int com_user_id = reader.nextInt();
-                System.out.println("\nGame_id: ");
-                int com_game_id = reader.nextInt();
-                System.out.println("\nScore: ");
-                int com_score = reader.nextInt();
-                System.out.println("\nContent: ");
-                String com_content = breader.readLine();
-                c=new Comment(com_user_id,com_game_id,com_score,com_content,today);
+                c=createComment();
                 dao.merge(c);
                 break;
             case 3:
@@ -362,6 +385,20 @@ public class UserInterface {
                 int id_del = reader.nextInt();
                 c=dao.getById(Comment.class,id_del);
                 dao.delete(c);
+                break;
+            case 5:
+                System.out.println("Enter id of Comment:");
+                com_id = reader.nextInt();
+                c = dao.getById(Comment.class,com_id);
+                if(c==null)
+                    c=createComment();
+                else {
+                    int id=c.getId();
+                    c=createComment();
+                    c.setId(id);
+                }
+                dao.merge(c);
+                System.out.println("\n");
                 break;
             case 0:
                 break;
@@ -376,6 +413,7 @@ public class UserInterface {
                 "1. Get Transaction by Id \n" +
                 "2. Create Transaction \n" +
                 "3. Delete Transaction by Id \n" +
+                "4. Update Transaction by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -385,10 +423,11 @@ public class UserInterface {
             System.out.println("Wrong input");
         }
         Transaction t;
+        int tra_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Transaction:");
-                int tra_id = reader.nextInt();
+                tra_id = reader.nextInt();
                 t = dao.getById(Transaction.class,tra_id);
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
@@ -396,12 +435,7 @@ public class UserInterface {
                     System.out.println(t.toString());
                 break;
             case 2:
-                System.out.println("Enter parameters for Transaction:");
-                System.out.println("\nUser_id: ");
-                int tra_user_id = reader.nextInt();
-                System.out.println("\nSum: ");
-                int tra_sum = reader.nextInt();
-                t=new Transaction(tra_user_id,tra_sum,today);
+                t = createTransaction();
                 dao.merge(t);
                 break;
             case 3:
@@ -410,12 +444,92 @@ public class UserInterface {
                 t=dao.getById(Transaction.class,id_del);
                 dao.delete(t);
                 break;
+            case 4:
+                System.out.println("Enter id of Transaction:");
+                tra_id = reader.nextInt();
+                t = dao.getById(Transaction.class,tra_id);
+                if(t==null)
+                    t=createTransaction();
+                else {
+                    int id=t.getId();
+                    t=createTransaction();
+                    t.setId(id);
+                }
+                dao.merge(t);
+                System.out.println("\n");
+                break;
             case 0:
                 break;
             default:
                 System.out.println("Incorrect option");
                 break;
         }
+    }
+
+    private static User createUser() throws IOException {
+        System.out.println("Enter parameters for User:");
+        System.out.println("\nNickname: ");
+        String user_nick = breader.readLine();
+        System.out.println("\nFirst name: ");
+        String user_first = breader.readLine();
+        System.out.println("\nLast name: ");
+        String user_last = breader.readLine();
+        System.out.println("\nEmail name: ");
+        String user_email = breader.readLine();
+
+        return new User(user_nick,user_first,user_last,user_email);
+    }
+    private static Game createGame() throws IOException {
+        System.out.println("Enter parameters for Game:");
+        System.out.println("\nTitle: ");
+        String game_title = breader.readLine();
+        System.out.println("\nDescription: ");
+        String game_description = breader.readLine();
+        System.out.println("\n Price: ");
+        int game_price = reader.nextInt();
+        System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
+        String game_producttype = breader.readLine();
+        return new Game(game_title,game_description,null,game_price,today,game_producttype);
+    }
+    private static Developer createDeveloper() throws IOException {
+        System.out.println("Enter parameters for Developer:");
+        System.out.println("\nName: ");
+        String dev_name = breader.readLine();
+        System.out.println("\nAddress: ");
+        String dev_address = breader.readLine();
+        System.out.println("\nEmail: ");
+        String dev_email = breader.readLine();
+        return new Developer(dev_name,dev_address,dev_email);
+    }
+    private static Publisher createPublisher() throws IOException {
+        System.out.println("Enter parameters for Publisher:");
+        System.out.println("\nName: ");
+        String pub_name = breader.readLine();
+        System.out.println("\nAddress: ");
+        String pub_address = breader.readLine();
+        System.out.println("\nEmail: ");
+        String pub_email = breader.readLine();
+        return new Publisher(pub_name,pub_address,pub_email);
+    }
+    private static Comment createComment() throws IOException {
+        System.out.println("Enter parameters for Comment:");
+        System.out.println("\nUser_id: ");
+        int com_user_id = reader.nextInt();
+        System.out.println("\nGame_id: ");
+        int com_game_id = reader.nextInt();
+        System.out.println("\nScore: ");
+        int com_score = reader.nextInt();
+        System.out.println("\nContent: ");
+        String com_content = breader.readLine();
+        return new Comment(com_user_id,com_game_id,com_score,com_content,today);
+    }
+    private static Transaction createTransaction(){
+        System.out.println("Enter parameters for Transaction:");
+        System.out.println("\nUser_id: ");
+        int tra_user_id = reader.nextInt();
+        System.out.println("\nSum: ");
+        int tra_sum = reader.nextInt();
+        return new Transaction(tra_user_id,tra_sum,today);
     }
 
     public static void setUsername(String username) {

@@ -80,5 +80,9 @@ public class Publisher implements Entity, Nameable {
                 "\n Address: "+address+
                 "\n Email: "+email+"\n";
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }
 

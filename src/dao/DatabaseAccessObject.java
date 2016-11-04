@@ -113,6 +113,20 @@ public final class DatabaseAccessObject {
         }
         return entity;
     }
+    public int getSeqValue(String seqType){
+        String dbName;
+        int seq_val = -1;
+        dbName = seqType;
+        String s ="SELECT \""+dbName+"s_seq\".CURRVAL FROM DUAL";
+        try{
+            ResultSet results = c.createStatement().executeQuery("SELECT \""+dbName+"s_seq\".CURRVAL FROM DUAL");
+            if(results.next())
+                seq_val=results.getInt("CURRVAL");
+        } catch (SQLException e) {
+            System.err.print(e.getMessage());
+        }
+        return seq_val;
+    }
 
     //***D
     public void delete(Entity e) {
@@ -193,6 +207,7 @@ public final class DatabaseAccessObject {
         }
         return u;
     }
+
 
     //Service methods
     private static void init(String username, String password){
@@ -301,6 +316,8 @@ public final class DatabaseAccessObject {
 
         return sb.toString();
     }
+
+
 
     public ResultSet execute(String query){
         ResultSet rs = null;
