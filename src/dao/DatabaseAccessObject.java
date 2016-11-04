@@ -93,6 +93,8 @@ public final class DatabaseAccessObject {
     public <T extends Entity> T getById(Class<T> type, int id) {
         T entity = null;
         try {
+            String s = "SELECT * FROM " + type.getSimpleName().toUpperCase()
+                    + "S WHERE Id = " + id;
             ResultSet results = c.createStatement().executeQuery("SELECT * FROM " + type.getSimpleName().toUpperCase()
                     + "S WHERE Id = " + id);
             if (results.next())
@@ -130,7 +132,7 @@ public final class DatabaseAccessObject {
         DateFormat df = new SimpleDateFormat(dateFormat);
         StringBuilder sb = new StringBuilder("INSERT INTO ");
         sb.append(e.getClass().getSimpleName().toUpperCase()).append("S ( Id");
-        List<String> values = new ArrayList<>();
+        List<String> values = new ArrayList<String>();
 
         Field[] fields = e.getClass().getDeclaredFields();
         try {
@@ -207,7 +209,6 @@ public final class DatabaseAccessObject {
         }
 
     }
-
     public void delete(Entity e) {
         try {
             c.createStatement().executeUpdate("DELETE FROM "+e.getClass().getSimpleName() + "S WHERE Id = "+e.getId());
@@ -216,7 +217,6 @@ public final class DatabaseAccessObject {
             System.err.print(ex.getMessage());
         }
     }
-
     public ResultSet execute(String query){
         ResultSet rs = null;
         try {
@@ -227,4 +227,6 @@ public final class DatabaseAccessObject {
         }
         return rs;
     }
+
+
 }

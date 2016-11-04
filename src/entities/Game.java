@@ -18,7 +18,7 @@ public class Game implements Entity,Nameable {
     public Game(){}
 
     public Game (String title, String description, Blob cover, int price, Date released, String product_type){
-        if(title == null || description == null|| cover == null|| released == null || product_type == null)
+        if(title == null || description == null|| released == null || product_type == null)
             throw new NullPointerException("initialization info for Game is invalid");
 
         this.title=title;

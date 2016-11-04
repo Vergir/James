@@ -99,4 +99,9 @@ public class User implements Entity, Nameable{
     public void setBalance(int b){
         this.balance=b;
     }
+
+    @Override
+    public String toString(){
+        return "";
+    }
 }
