@@ -1,12 +1,11 @@
-package entities;
+package dbobjects.entities;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.sql.Blob;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Game implements Entity,Nameable {
+public class Game implements Entity, Nameable {
     int id;
     String title;
     String description;
@@ -28,11 +27,6 @@ public class Game implements Entity,Nameable {
         this.cover=cover;
         this.released=released;
         this.product_type=product_type;
-    }
-
-    private Game (int id, String title, String description, Blob cover, int price, Date released, String product_type){
-        this(title,description,cover,price,released,product_type);
-        this.id=id;
     }
 
     @Override

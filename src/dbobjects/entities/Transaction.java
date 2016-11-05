@@ -1,4 +1,4 @@
-package entities;
+package dbobjects.entities;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,10 +22,6 @@ public class Transaction implements Entity{
         this.user_id = user_id;
         this.sum = sum;
         this.t_Date = t_Date;
-    }
-    private Transaction(int id, int user_id, int sum, Date t_Date) {
-        this(user_id,sum,t_Date);
-        this.id = id;
     }
 
     @Override
@@ -69,7 +65,7 @@ public class Transaction implements Entity{
 
     @Override
     public String toString(){
-        return "Game: \n" +
+        return "Transaction: \n" +
                 " User_id: "+user_id+
                 "\n Sum: "+sum+
                 "\n T_Date: "+t_Date+"\n";

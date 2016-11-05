@@ -1,6 +1,5 @@
-package ui;
 import dao.DatabaseAccessObject;
-import entities.*;
+import dbobjects.entities.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.util.Scanner;
  * Created by Stanislav on 04.11.2016.
  * stas33553377@yandex.ru
  */
-public class UserInterface {
+public class Application {
 
     private static String username;
     private static String password;
@@ -543,11 +542,11 @@ public class UserInterface {
         return t;
     }
 
-    public static void setUsername(String username) {
-        UserInterface.username = username;
+    private static void setUsername(String username) {
+        Application.username = username;
     }
-    public static void setPassword(String password) {
-        UserInterface.password = password;
+    private static void setPassword(String password) {
+        Application.password = password;
     }
     public static String getUsername() {
         return username;
