@@ -75,6 +75,7 @@ public class Application {
             }
         }
     }
+
     private static void callUser() throws IOException {
         int input=0;
         System.out.println("Choose an option: \n" +
@@ -463,11 +464,24 @@ public class Application {
         int game_price = reader.nextInt();
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
+        System.out.println("\nDeveloper name: ");
+        String dev_name = breader.readLine();
+        System.out.println("\nPublisher: ");
+        String pub_name = breader.readLine();
+
+        Developer game_dev = dao.getByName(Developer.class,dev_name);
+        if(game_dev == null)
+            System.err.println("No Developers with this name");
+        Publisher game_pub = dao.getByName(Publisher.class,pub_name);
+        if(game_pub == null)
+            System.err.println("No Publishers with this name");
+
         if(g!=null){
             g.setPrice(game_price);
             g.setDescription(game_description);
             g.setProduct_type(game_producttype);
             g.setTitle(game_title);
+
         }
         else
             g= new Game(game_title,game_description,null,game_price,today,game_producttype);
