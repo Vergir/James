@@ -71,7 +71,7 @@ public final class DatabaseAccessObject {
         }
         return entities;
     }
-    public <T extends Entity> T getById(Class<T> returnType, int id) {
+    public <T extends Entity> T getEntity(Class<T> returnType, int id) {
         if (returnType.equals(User.class)) {
             for (User u : getAllUsers())
                 if (u.getId() == id)
@@ -89,6 +89,22 @@ public final class DatabaseAccessObject {
             System.err.print(e.getMessage());
         }
         return entity;
+    }
+    public <T extends Linker> T getLinker(Class<T> returnType, int id1, int id2) {
+        T linker = null;
+        String[] classNames = splitClasses(returnType.getSimpleName());
+        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(returnType.getSimpleName());
+        sql.append(" WHERE ").append(classNames[0]).append("_Id = ").append(id1);
+        sql.append(" AND ").append(classNames[1]).append("_Id = ").append(id2);
+        try {
+            ResultSet results = c.createStatement().executeQuery(sql.toString());
+            if (results.next())
+                linker = (T)returnType.newInstance().fromResultSet(results);
+        }
+        catch (Exception e){
+            System.err.print(e.getMessage());
+        }
+        return linker;
     }
     public <T extends Nameable> T getByName(Class<T> returnType, String name) {
         String dbName;
@@ -263,7 +279,7 @@ public final class DatabaseAccessObject {
         }
     }
     private void mergeEntity(Entity e) {
-        Entity search = getById(e.getClass(), e.getId());
+        Entity search = getEntity(e.getClass(), e.getId());
         String sql;
         if (search == null)
             sql = prepareInsertStatement(e);

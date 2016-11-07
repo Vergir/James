@@ -1,6 +1,7 @@
 import dao.DatabaseAccessObject;
 import dbobjects.DbObject;
 import dbobjects.linkers.GamesDevelopers;
+import dbobjects.linkers.Linker;
 
 import javax.xml.crypto.Data;
 import java.io.BufferedReader;
@@ -23,17 +24,7 @@ public class Main{
             username = br.readLine();
             password = br.readLine();
         }
-
-        DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
-
-        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
-
-        GamesDevelopers gd = (GamesDevelopers) gds.toArray()[0];
-
-        gd.setDeveloperId(6);
-
-        dao.delete(gd);
-
+        
         Application.start(username,password);
 
     }

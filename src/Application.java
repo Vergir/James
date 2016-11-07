@@ -1,10 +1,13 @@
 import dao.DatabaseAccessObject;
 import dbobjects.entities.*;
+import dbobjects.linkers.GamesDevelopers;
+import dbobjects.linkers.GamesPublishers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Created by Stanislav on 04.11.2016.
@@ -98,7 +101,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
-                u = dao.getById(User.class,user_id);
+                u = dao.getEntity(User.class,user_id);
                 if(u!=null)
                     System.out.println(u.toString());
                 else
@@ -128,7 +131,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
-                u = dao.getById(User.class,user_id);
+                u = dao.getEntity(User.class,user_id);
                 u=fillUser(u);
                 dao.merge(u);
                 System.out.println("\n");
@@ -157,14 +160,19 @@ public class Application {
             System.out.println("Wrong input");
         }
         Game g;
+        GamesDevelopers gd;
+        GamesPublishers gp;
         int game_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Game:");
                 game_id = reader.nextInt();
-                g = dao.getById(Game.class,game_id);
-                if(g!=null)
+                g = dao.getEntity(Game.class,game_id);
+                if(g!=null) {
                     System.out.println(g.toString());
+                    readGamesDevelopers(g);
+                    readGamesPublishers(g);
+                }
                 else
                     System.out.println("There is no User with this id");
                 break;
@@ -172,13 +180,20 @@ public class Application {
                 System.out.println("Enter title of Game:");
                 String game_Title = breader.readLine();
                 g = dao.getByName(Game.class,game_Title);
-                if(g!=null)
+                if(g!=null) {
                     System.out.println(g.toString());
+                    readGamesDevelopers(g);
+                    readGamesPublishers(g);
+                }
                 else
                     System.out.println("There is no User with this id");
                 break;
             case 3:
                 g = fillGame(null);
+                gd = createGamesDevelopers(g);
+                gp = createGamesPublishers(g);
+                dao.merge(gp);
+                dao.merge(gd);
                 dao.merge(g);
                 break;
             case 4:
@@ -190,13 +205,20 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Game:");
                 game_id = reader.nextInt();
-                g = dao.getById(Game.class,game_id);
-                if(g==null)
-                    g=fillGame(null);
+                g = dao.getEntity(Game.class,game_id);
+                if(g==null) {
+                    g = fillGame(null);
+                    gd = createGamesDevelopers(g);
+                    gp = createGamesPublishers(g);
+                }
                 else {
                     g=fillGame(g);
+                    gd = updateGamesDevelopers(g);
+                    gp = updateGamesPublishers(g);
                 }
                 dao.merge(g);
+                dao.merge(gp);
+                dao.merge(gd);
                 System.out.println("\n");
                 break;
             case 0:
@@ -228,11 +250,13 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Developer:");
                 dev_id = reader.nextInt();
-                d = dao.getById(Developer.class,dev_id);
+                d = dao.getEntity(Developer.class,dev_id);
                 if(d==null)
                     System.out.println("There is no Developer with this id");
-                else
+                else {
                     System.out.println(d.toString());
+                    readGamesDevelopers(d);
+                }
                 break;
             case 2:
                 System.out.println("Enter Name of Developer:");
@@ -240,8 +264,10 @@ public class Application {
                 d = dao.getByName(Developer.class,dev_Name);
                 if(d==null)
                     System.out.println("There is no Developer with this id");
-                else
+                else {
                     System.out.println(d.toString());
+                    readGamesDevelopers(d);
+                }
                 break;
             case 3:
                 d=fillDeveloper(null);
@@ -256,7 +282,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Developer:");
                 dev_id = reader.nextInt();
-                d = dao.getById(Developer.class,dev_id);
+                d = dao.getEntity(Developer.class,dev_id);
                 d=fillDeveloper(d);
                 dao.merge(d);
                 System.out.println("\n");
@@ -289,11 +315,13 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Publisher:");
                 int pub_id = reader.nextInt();
-                p = dao.getById(Publisher.class,pub_id);
+                p = dao.getEntity(Publisher.class,pub_id);
                 if(p==null)
                     System.out.println("There is no Publisher with this id");
-                else
+                else {
                     System.out.println(p.toString());
+                    readGamesPublishers(p);
+                }
                 break;
             case 2:
                 System.out.println("Enter Name of Publisher:");
@@ -301,8 +329,10 @@ public class Application {
                 p = dao.getByName(Publisher.class,pub_Name);
                 if(p==null)
                     System.out.println("There is no Publisher with this id");
-                else
+                else {
                     System.out.println(p.toString());
+                    readGamesPublishers(p);
+                }
                 break;
             case 3:
                 p=fillPublisher(null);
@@ -317,7 +347,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Publisher:");
                 pub_id = reader.nextInt();
-                p = dao.getById(Publisher.class,pub_id);
+                p = dao.getEntity(Publisher.class,pub_id);
                 p=fillPublisher(p);
                 dao.merge(p);
                 System.out.println("\n");
@@ -350,7 +380,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
-                c = dao.getById(Comment.class,com_id);
+                c = dao.getEntity(Comment.class,com_id);
                 if(c==null)
                     System.out.println("There is no Comment with this id");
                 else
@@ -363,13 +393,13 @@ public class Application {
             case 3:
                 System.out.println("Enter id of Comment:");
                 int id_del = reader.nextInt();
-                c=dao.getById(Comment.class,id_del);
+                c=dao.getEntity(Comment.class,id_del);
                 dao.delete(c);
                 break;
             case 5:
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
-                c = dao.getById(Comment.class,com_id);
+                c = dao.getEntity(Comment.class,com_id);
                 c=fillComment(c);
                 dao.merge(c);
                 System.out.println("\n");
@@ -402,7 +432,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
-                t = dao.getById(Transaction.class,tra_id);
+                t = dao.getEntity(Transaction.class,tra_id);
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
                 else
@@ -415,13 +445,13 @@ public class Application {
             case 3:
                 System.out.println("Enter id of Transaction:");
                 int id_del = reader.nextInt();
-                t=dao.getById(Transaction.class,id_del);
+                t=dao.getEntity(Transaction.class,id_del);
                 dao.delete(t);
                 break;
             case 4:
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
-                t = dao.getById(Transaction.class,tra_id);
+                t = dao.getEntity(Transaction.class,tra_id);
                 t=fillTransaction(t);
                 dao.merge(t);
                 System.out.println("\n");
@@ -464,19 +494,8 @@ public class Application {
         int game_price = reader.nextInt();
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
-        System.out.println("\nDeveloper name: ");
-        String dev_name = breader.readLine();
-        System.out.println("\nPublisher: ");
-        String pub_name = breader.readLine();
-
-        Developer game_dev = dao.getByName(Developer.class,dev_name);
-        if(game_dev == null)
-            System.err.println("No Developers with this name");
-        Publisher game_pub = dao.getByName(Publisher.class,pub_name);
-        if(game_pub == null)
-            System.err.println("No Publishers with this name");
-
         if(g!=null){
+
             g.setPrice(game_price);
             g.setDescription(game_description);
             g.setProduct_type(game_producttype);
@@ -555,6 +574,130 @@ public class Application {
             t= new Transaction(tra_user_id,tra_sum,today);
         return t;
     }
+
+    private static GamesDevelopers createGamesDevelopers(Game g) throws IOException {
+        System.out.println("\nDeveloper name: ");
+        String dev_name = breader.readLine();
+        Developer game_dev = dao.getByName(Developer.class,dev_name);
+        if(game_dev != null) {
+            GamesDevelopers gd = dao.getLinker(GamesDevelopers.class, g.getId(), game_dev.getId());
+            if(gd==null) {
+                gd = new GamesDevelopers();
+                gd.setDeveloperId(game_dev.getId());
+                gd.setGameId(g.getId());
+                return gd;
+            }
+            return gd;
+        }
+        System.out.println("No Developers with this name");
+        return null;
+    }
+    private static GamesDevelopers updateGamesDevelopers(Game g) throws IOException {
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        GamesDevelopers gd = null;
+        for(GamesDevelopers i : gds)
+            if(i.getId1()==g.getId()){
+                gd=i;
+                break;
+            }
+        if(gd == null)
+            return createGamesDevelopers(g);
+        else{
+            dao.delete(gd);
+            System.out.println("\nDeveloper name: ");
+            String dev_name = breader.readLine();
+            Developer game_dev = dao.getByName(Developer.class,dev_name);
+            if(game_dev == null)
+                System.out.println("No Developers with this name");
+            else
+                gd.setDeveloperId(game_dev.getId());
+            return gd;
+        }
+
+    }
+    private static void readGamesDevelopers(Game g){
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        GamesDevelopers gd = null;
+        for(GamesDevelopers i : gds)
+            if(i.getId1()==g.getId()){
+                gd=i;
+                break;
+            }
+        Developer dev = dao.getEntity(Developer.class,gd.getId2());
+        System.out.println("Developer: "+dev.getName());
+    }
+    private static void readGamesDevelopers(Developer dev){
+        System.out.println("List of games by this dev:");
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        for(GamesDevelopers gd: gds){
+            if(gd.getId2()==dev.getId()) {
+                Game game = dao.getEntity(Game.class,gd.getId1());
+                System.out.println(game.getName());
+            }
+        }
+    }
+
+    private static GamesPublishers createGamesPublishers(Game g) throws IOException {
+        System.out.println("\nPublisher: ");
+        String pub_name = breader.readLine();
+        Publisher game_pub = dao.getByName(Publisher.class, pub_name);
+        if (game_pub != null) {
+            GamesPublishers gp = dao.getLinker(GamesPublishers.class,g.getId(),game_pub.getId());
+            if(gp == null){
+                gp=new GamesPublishers(g.getId(),game_pub.getId());
+                return gp;
+            }
+            return gp;
+        }
+        System.out.println("no Publishers with this name");
+        return null;
+    }
+    private static GamesPublishers updateGamesPublishers(Game g) throws IOException {
+        Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        GamesPublishers gp=null;
+        for(GamesPublishers i : gps)
+            if(i.getId1()==g.getId()) {
+                gp = i;
+                break;
+            }
+        if(gp==null)
+            return createGamesPublishers(g);
+        else{
+            dao.delete(gp);
+            System.out.println("\nPublisher name:");
+            String pub_name=breader.readLine();
+            Publisher game_pub = dao.getByName(Publisher.class,pub_name);
+            if(game_pub==null){
+                System.out.println("No Publishers with this name");
+            }
+            else
+                gp.setPublisherId(game_pub.getId());
+            return gp;
+        }
+    }
+    private static void readGamesPublishers(Game g){
+        Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        GamesPublishers gp = null;
+        for(GamesPublishers i : gps)
+            if(i.getId1()==g.getId()){
+                gp=i;
+                break;
+            }
+        Publisher pub = dao.getEntity(Publisher.class,gp.getId2());
+        System.out.println("Publisher: "+pub.getName());
+    }
+    private static void readGamesPublishers(Publisher pub){
+        System.out.println("List of games by this pub:");
+        Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        for(GamesPublishers gp: gps){
+            if(gp.getId2()==pub.getId()) {
+                Game game = dao.getEntity(Game.class,gp.getId1());
+                System.out.println(game.getName());
+            }
+        }
+    }
+
+    
 
     private static void setUsername(String username) {
         Application.username = username;
