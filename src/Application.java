@@ -97,7 +97,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
-                u = dao.getById(User.class,user_id);
+                u = dao.getEntity(User.class,user_id);
                 if(u!=null)
                     System.out.println(u.toString());
                 else
@@ -127,7 +127,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
-                u = dao.getById(User.class,user_id);
+                u = dao.getEntity(User.class,user_id);
                 u=fillUser(u);
                 dao.merge(u);
                 System.out.println("\n");
@@ -161,7 +161,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Game:");
                 game_id = reader.nextInt();
-                g = dao.getById(Game.class,game_id);
+                g = dao.getEntity(Game.class,game_id);
                 if(g!=null)
                     System.out.println(g.toString());
                 else
@@ -189,7 +189,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Game:");
                 game_id = reader.nextInt();
-                g = dao.getById(Game.class,game_id);
+                g = dao.getEntity(Game.class,game_id);
                 if(g==null)
                     g=fillGame(null);
                 else {
@@ -227,7 +227,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Developer:");
                 dev_id = reader.nextInt();
-                d = dao.getById(Developer.class,dev_id);
+                d = dao.getEntity(Developer.class,dev_id);
                 if(d==null)
                     System.out.println("There is no Developer with this id");
                 else
@@ -255,7 +255,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Developer:");
                 dev_id = reader.nextInt();
-                d = dao.getById(Developer.class,dev_id);
+                d = dao.getEntity(Developer.class,dev_id);
                 d=fillDeveloper(d);
                 dao.merge(d);
                 System.out.println("\n");
@@ -288,7 +288,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Publisher:");
                 int pub_id = reader.nextInt();
-                p = dao.getById(Publisher.class,pub_id);
+                p = dao.getEntity(Publisher.class,pub_id);
                 if(p==null)
                     System.out.println("There is no Publisher with this id");
                 else
@@ -316,7 +316,7 @@ public class Application {
             case 5:
                 System.out.println("Enter id of Publisher:");
                 pub_id = reader.nextInt();
-                p = dao.getById(Publisher.class,pub_id);
+                p = dao.getEntity(Publisher.class,pub_id);
                 p=fillPublisher(p);
                 dao.merge(p);
                 System.out.println("\n");
@@ -349,7 +349,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
-                c = dao.getById(Comment.class,com_id);
+                c = dao.getEntity(Comment.class,com_id);
                 if(c==null)
                     System.out.println("There is no Comment with this id");
                 else
@@ -362,13 +362,13 @@ public class Application {
             case 3:
                 System.out.println("Enter id of Comment:");
                 int id_del = reader.nextInt();
-                c=dao.getById(Comment.class,id_del);
+                c=dao.getEntity(Comment.class,id_del);
                 dao.delete(c);
                 break;
             case 5:
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
-                c = dao.getById(Comment.class,com_id);
+                c = dao.getEntity(Comment.class,com_id);
                 c=fillComment(c);
                 dao.merge(c);
                 System.out.println("\n");
@@ -401,7 +401,7 @@ public class Application {
             case 1:
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
-                t = dao.getById(Transaction.class,tra_id);
+                t = dao.getEntity(Transaction.class,tra_id);
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
                 else
@@ -414,13 +414,13 @@ public class Application {
             case 3:
                 System.out.println("Enter id of Transaction:");
                 int id_del = reader.nextInt();
-                t=dao.getById(Transaction.class,id_del);
+                t=dao.getEntity(Transaction.class,id_del);
                 dao.delete(t);
                 break;
             case 4:
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
-                t = dao.getById(Transaction.class,tra_id);
+                t = dao.getEntity(Transaction.class,tra_id);
                 t=fillTransaction(t);
                 dao.merge(t);
                 System.out.println("\n");
