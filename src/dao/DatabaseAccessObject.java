@@ -357,7 +357,7 @@ public final class DatabaseAccessObject {
                 if (fields[i].getType().equals(String.class))
                     values.add("'"+fields[i].get(e).toString()+"'");
                 else if (fields[i].getType().equals(Date.class))
-                    values.add("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"'");
+                    values.add("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"')");
                 else
                     values.add(fields[i].get(e) != null ? fields[i].get(e).toString() : null);
             }
@@ -385,7 +385,7 @@ public final class DatabaseAccessObject {
             if (fields[1].getType().equals(String.class))
                 sb.append("'"+fields[1].get(e).toString()+"'");
             else if (fields[1].getType().equals(Date.class))
-                sb.append("TO_DATE('"+df.format(fields[1].get(e))+"', '"+dateFormat+"'");
+                sb.append("TO_DATE('"+df.format(fields[1].get(e))+"', '"+dateFormat+"')");
             else
                 sb.append(fields[1].get(e).toString());
 
@@ -395,7 +395,7 @@ public final class DatabaseAccessObject {
                 if (fields[i].getType().equals(String.class))
                     sb.append("'"+fields[i].get(e).toString()+"'");
                 else if (fields[i].getType().equals(Date.class))
-                    sb.append("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"'");
+                    sb.append("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"')");
                 else
                     sb.append(fields[i].get(e) != null ? fields[i].get(e).toString() : null);
             }

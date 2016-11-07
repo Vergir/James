@@ -82,6 +82,7 @@ public class Application {
         }
     }
 
+    //Entities menu
     private static void callUser() throws IOException {
         int input=0;
         System.out.println("Choose an option: \n" +
@@ -105,8 +106,10 @@ public class Application {
                 System.out.println("Enter id of user:");
                 user_id = reader.nextInt();
                 u = dao.getEntity(User.class,user_id);
-                if(u!=null)
+                if(u!=null) {
                     System.out.println(u.toString());
+                    readUsersGames(u);
+                }
                 else
                     System.out.println("There is no User with this id");
                 break;
@@ -114,8 +117,10 @@ public class Application {
                 System.out.println("Enter name of user:");
                 String User_Name = breader.readLine();
                 u = dao.getByName(User.class,User_Name);
-                if(u != null)
+                if(u != null) {
                     System.out.println(u.toString());
+                    readUsersGames(u);
+                }
                 else
                     System.out.println("There is no User with this name \n");
                 break;
@@ -195,7 +200,9 @@ public class Application {
                 g = fillGame(null);
                 gd = createGamesDevelopers(g);
                 gp = createGamesPublishers(g);
+                if(gp!=null)
                 dao.merge(gp);
+                if(gd!=null)
                 dao.merge(gd);
                 dao.merge(g);
                 break;
@@ -203,6 +210,8 @@ public class Application {
                 System.out.println("Enter name of Game:");
                 String Name_del = breader.readLine();
                 g=dao.getByName(Game.class,Name_del);
+                deleteGamesDevelopers(g);
+                deleteGamesPublishers(g);
                 dao.delete(g);
                 break;
             case 5:
@@ -220,7 +229,9 @@ public class Application {
                     gp = updateGamesPublishers(g);
                 }
                 dao.merge(g);
+                if(gp!=null)
                 dao.merge(gp);
+                if(gd!=null)
                 dao.merge(gd);
                 System.out.println("\n");
                 break;
@@ -419,8 +430,7 @@ public class Application {
         System.out.println("Choose an option: \n" +
                 "1. Get Transaction by Id \n" +
                 "2. Create Transaction \n" +
-                "3. Delete Transaction by Id \n" +
-                "4. Update Transaction by Id \n" +
+                "3. Update Transaction by Id \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -453,12 +463,6 @@ public class Application {
                 break;
             case 3:
                 System.out.println("Enter id of Transaction:");
-                int id_del = reader.nextInt();
-                t=dao.getEntity(Transaction.class,id_del);
-                dao.delete(t);
-                break;
-            case 4:
-                System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
                 t = dao.getEntity(Transaction.class,tra_id);
                 t=fillTransaction(t);
@@ -476,6 +480,7 @@ public class Application {
         }
     }
 
+    // Entities
     private static User fillUser(User u) throws IOException {
         System.out.println("Enter parameters for User:");
         System.out.println("\nNickname: ");
@@ -587,6 +592,7 @@ public class Application {
         return t;
     }
 
+    //Linker GamesDevelopers
     private static GamesDevelopers createGamesDevelopers(Game g) throws IOException {
         System.out.println("\nDeveloper name: ");
         String dev_name = breader.readLine();
@@ -625,7 +631,6 @@ public class Application {
                 gd.setDeveloperId(game_dev.getId());
             return gd;
         }
-
     }
     private static void readGamesDevelopers(Game g){
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
@@ -648,7 +653,22 @@ public class Application {
             }
         }
     }
+    private static void deleteGamesDevelopers(Developer dev){
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        for(GamesDevelopers gd : gds){
+            if(gd.getId2()==dev.getId())
+                dao.delete(gd);
+        }
+    }
+    private static void deleteGamesDevelopers(Game g){
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        for(GamesDevelopers gd : gds){
+            if(gd.getId1()==g.getId())
+                dao.delete(gd);
+        }
+    }
 
+    //Linker GamesPublishers
     private static GamesPublishers createGamesPublishers(Game g) throws IOException {
         System.out.println("\nPublisher: ");
         String pub_name = breader.readLine();
@@ -708,7 +728,22 @@ public class Application {
             }
         }
     }
+    private static void deleteGamesPublishers(Publisher pub){
+        Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        for(GamesPublishers gp : gps){
+            if(gp.getId2()==pub.getId())
+                dao.delete(gp);
+        }
+    }
+    private static void deleteGamesPublishers(Game g){
+        Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        for(GamesPublishers gp : gps){
+            if(gp.getId1()==g.getId())
+                dao.delete(gp);
+        }
+    }
 
+    //Linker TransactionsGames
     private static ArrayList<TransactionsGames> createTransactionsGames(Transaction t) throws  IOException{
         ArrayList<TransactionsGames> tgs = new ArrayList<>();
         System.out.println("Enter count of games in this transaction");
@@ -765,9 +800,18 @@ public class Application {
             }
         }
     }
-    
 
-
+    //Linker UsersGames
+    private static void readUsersGames(User u){
+        Set<UsersGames> ugs = dao.getAll(UsersGames.class);
+        System.out.println("List of games in this user's library:");
+        for(UsersGames i : ugs)
+            if (i.getId1() == u.getId()) {
+                Game g = dao.getEntity(Game.class, i.getId2());
+                if (g != null)
+                    System.out.println("\t" + g.getName());
+            }
+    }
 
     private static void setUsername(String username) {
         Application.username = username;
