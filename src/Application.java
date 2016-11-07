@@ -2,10 +2,13 @@ import dao.DatabaseAccessObject;
 import dbobjects.entities.*;
 import dbobjects.linkers.GamesDevelopers;
 import dbobjects.linkers.GamesPublishers;
+import dbobjects.linkers.TransactionsGames;
+import dbobjects.linkers.UsersGames;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -411,7 +414,7 @@ public class Application {
                 break;
         }
     }
-    private static void callTransaction(){
+    private static void callTransaction() throws IOException {
         int input=0;
         System.out.println("Choose an option: \n" +
                 "1. Get Transaction by Id \n" +
@@ -427,6 +430,7 @@ public class Application {
             System.out.println("Wrong input");
         }
         Transaction t;
+        ArrayList<TransactionsGames> tgs;
         int tra_id;
         switch (input){
             case 1:
@@ -435,11 +439,16 @@ public class Application {
                 t = dao.getEntity(Transaction.class,tra_id);
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
-                else
+                else {
                     System.out.println(t.toString());
+                    readTransactionGames(t);
+                }
                 break;
             case 2:
                 t = fillTransaction(null);
+                tgs = createTransactionsGames(t);
+                for(TransactionsGames tg : tgs)
+                    dao.merge(tg);
                 dao.merge(t);
                 break;
             case 3:
@@ -453,6 +462,9 @@ public class Application {
                 tra_id = reader.nextInt();
                 t = dao.getEntity(Transaction.class,tra_id);
                 t=fillTransaction(t);
+                tgs = updateTransactionGames(t);
+                for(TransactionsGames tg : tgs)
+                    dao.merge(tg);
                 dao.merge(t);
                 System.out.println("\n");
                 break;
@@ -697,7 +709,65 @@ public class Application {
         }
     }
 
+    private static ArrayList<TransactionsGames> createTransactionsGames(Transaction t) throws  IOException{
+        ArrayList<TransactionsGames> tgs = new ArrayList<>();
+        System.out.println("Enter count of games in this transaction");
+        int count = reader.nextInt();
+        for(int i=0; i<count;i++) {
+            System.out.println("Enter title of Game");
+            String game_name = breader.readLine();
+            Game g = dao.getByName(Game.class,game_name);
+            if(g==null) {
+                System.out.println("There is no Game with this title");
+                continue;
+            }
+            TransactionsGames tg = new TransactionsGames(t.getId(),g.getId());
+            UsersGames ug = new UsersGames(t.getUser_id(),g.getId());
+            dao.merge(ug);
+            tgs.add(tg);
+        }
+        return tgs;
+    }
+    private static ArrayList<TransactionsGames> updateTransactionGames(Transaction t) throws IOException{
+        if(t==null) return null;
+        Set<TransactionsGames> tgs = dao.getAll(TransactionsGames.class);
+        readTransactionGames(t);
+        ArrayList<TransactionsGames> new_tgs = new ArrayList<>();
+        System.out.println("Enter count of update operations:");
+        int count = reader.nextInt();
+        for(int i=0;i<count;i++){
+            System.out.println("Enter title of Game from list above:");
+            String game_name = breader.readLine();
+            Game g = dao.getByName(Game.class,game_name);
+            if(g==null)
+                System.out.println("No game with that title");
+            else{
+                TransactionsGames tg = new TransactionsGames();
+                for(TransactionsGames j : tgs){
+                    if(j.getId1() == t.getId() && j.getId2()==g.getId())
+                        dao.delete(j);
+                }
+                tg.setGameId(g.getId());
+                tg.setTransactionId(t.getId());
+                new_tgs.add(tg);
+            }
+        }
+        return new_tgs;
+    }
+    private static void readTransactionGames(Transaction t){
+        Set<TransactionsGames> tgs = dao.getAll(TransactionsGames.class);
+        System.out.println("List of games on this transaction:");
+        for(TransactionsGames i : tgs){
+            if(i.getId1() == t.getId()) {
+                Game g = dao.getEntity(Game.class,i.getId2());
+                if(g!=null)
+                    System.out.println("\t" +g.getName());
+            }
+        }
+    }
     
+
+
 
     private static void setUsername(String username) {
         Application.username = username;
