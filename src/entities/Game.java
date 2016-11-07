@@ -12,7 +12,7 @@ public class Game implements Entity,Nameable {
     String description;
     Blob cover;
     int price;
-    Date released;
+    java.util.Date released;
     String product_type;
 
     public Game(){}
@@ -74,7 +74,7 @@ public class Game implements Entity,Nameable {
     public int getPrice() {
         return price;
     }
-    public Date getReleased() {
+    public java.util.Date getReleased() {
         return released;
     }
     public String getProduct_type() {

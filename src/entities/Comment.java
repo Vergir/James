@@ -1,7 +1,7 @@
 package entities;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Created by Stanislav on 31.10.2016.

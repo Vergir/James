@@ -208,7 +208,6 @@ public final class DatabaseAccessObject {
         return u;
     }
 
-
     //Service methods
     private static void init(String username, String password){
         final int lPort = 2222;
@@ -306,18 +305,15 @@ public final class DatabaseAccessObject {
                 else if (fields[i].getType().equals(Date.class))
                     sb.append("TO_DATE('"+df.format(fields[i].get(e))+"', '"+dateFormat+"'");
                 else
-                    sb.append(fields[i].get(e).toString());
+                    sb.append(fields[i].get(e) != null ? fields[i].get(e).toString() : null);
             }
             sb.append(" WHERE Id = ").append(fields[0].get(e));
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return sb.toString();
     }
-
-
 
     public ResultSet execute(String query){
         ResultSet rs = null;
