@@ -1,4 +1,4 @@
-package entities;
+package dbobjects.entities;
 
 import java.sql.*;
 import java.util.Date;
@@ -27,11 +27,6 @@ public class User implements Entity, Nameable{
         firstName = first;
         lastName = last;
         this.email = email;
-    }
-
-    private User (int id, String nick, String first, String last, String email){
-        this(nick,first,last,email);
-        this.id=id;
     }
 
 
@@ -116,7 +111,7 @@ public class User implements Entity, Nameable{
                 "\n First Name: "+firstName+
                 "\n Last Name: "+ lastName+
                 "\n Email: "+email+
-                "\n Regestered: "+registered+
+                "\n Registered: "+registered+
                 "\n Balance: "+balance +"\n";
     }
 }

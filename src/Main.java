@@ -1,22 +1,20 @@
 import dao.DatabaseAccessObject;
-import entities.*;
-import ui.UserInterface;
+import dbobjects.DbObject;
+import dbobjects.linkers.GamesDevelopers;
+
+import javax.xml.crypto.Data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Set;
 
 public class Main{
     static String username;
     static String password;
 
     public static void main(String[] arg) throws IOException {
-        //if (arg.length != 2) {
-        //    System.err.println("2 arguments are necessary: username and password");
-        //    return;
-        //}
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        if(arg.length == 2 && arg[0] != null && arg[1] !=null)
-        {
+        if(arg.length == 2) {
             username=arg[0];
             password=arg[1];
         }
@@ -25,10 +23,18 @@ public class Main{
             username = br.readLine();
             password = br.readLine();
         }
-        //DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
-        //System.out.println(dao.getSeqValue("Comment"));
-        // UI/menu code goes here
-        UserInterface.start(username,password);
+
+        DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
+
+        Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+
+        GamesDevelopers gd = (GamesDevelopers) gds.toArray()[0];
+
+        gd.setDeveloperId(6);
+
+        dao.delete(gd);
+
+        Application.start(username,password);
 
     }
 }

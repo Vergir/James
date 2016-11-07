@@ -1,4 +1,5 @@
-package entities;
+
+package dbobjects.entities;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -26,10 +27,6 @@ public class Comment implements Entity {
         this.score = score;
         this.content = content;
         this.c_Date = c_Date;
-    }
-    private Comment(int id, int user_id, int game_id,int score,String content, Date c_Date) {
-        this(user_id,game_id,score,content,c_Date);
-        this.id = id;
     }
 
     @Override
@@ -87,7 +84,7 @@ public class Comment implements Entity {
 
     @Override
     public String toString(){
-        return "Game: \n" +
+        return "Comment: \n" +
                 " User_id: "+user_id+
                 "\n Game_id: "+game_id+
                 "\n Score: "+score+

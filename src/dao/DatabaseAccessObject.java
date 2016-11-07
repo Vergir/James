@@ -3,17 +3,17 @@ package dao;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import entities.*;
-import entities.Nameable;
+import dbobjects.DbObject;
+import dbobjects.entities.*;
+import dbobjects.linkers.Linker;
 import oracle.jdbc.internal.OracleTypes;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
 public final class DatabaseAccessObject {
     private static DatabaseAccessObject instance;
@@ -35,36 +35,34 @@ public final class DatabaseAccessObject {
 
 
     //C*U*
-    public void merge(Entity e){
-        if (e.getClass().equals(User.class)) {
-            AddUser((User)e);
+    public void merge(DbObject object){
+        if (object.getClass().equals(User.class)) {
+            mergeUser((User) object);
             return;
         }
 
-        Entity search = getById(e.getClass(), e.getId());
-        String sql;
-        if (search == null)
-            sql = prepareInsertStatement(e);
-        else
-            sql = prepareUpdateStatement(e);
-
-        try {
-            c.createStatement().executeUpdate(sql);
+        if (object instanceof Entity) {
+            mergeEntity((Entity) object);
         }
-        catch (Exception ex) {
-            System.err.print(ex.getMessage());
+        else if (object instanceof Linker) {
+            mergeLinker((Linker)object);
         }
-
     }
 
     //*R**
-    public <T extends Entity> List<T> getAll(Class<T> returnType) {
+    public <T extends DbObject> Set<T> getAll(Class<T> returnType) {
         if (returnType.equals(User.class))
-            return (List<T>)getAllUsers();
-        ResultSet results;
-        List<T> entities = new ArrayList<T>();
+            return (Set<T>)getAllUsers();
+
+        Set<T> entities = new HashSet<T>();
+        String optionalS;
+        if (Linker.class.isAssignableFrom(returnType))
+            optionalS = "";
+        else
+            optionalS = "S";
         try {
-            results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase() + "S");
+            ResultSet results;
+            results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase() + optionalS);
             while (results.next())
                 entities.add((T)returnType.newInstance().fromResultSet(results));
         }
@@ -92,7 +90,7 @@ public final class DatabaseAccessObject {
         }
         return entity;
     }
-    public <T extends Entity & Nameable> T getByName(Class<T> returnType, String name) {
+    public <T extends Nameable> T getByName(Class<T> returnType, String name) {
         String dbName;
         if (returnType.equals(User.class))
             return (T)getUserByName(name);
@@ -113,28 +111,15 @@ public final class DatabaseAccessObject {
         }
         return entity;
     }
-    public int getSeqValue(String seqType){
-        String dbName;
-        int seq_val = -1;
-        dbName = seqType;
-        String s ="SELECT \""+dbName+"s_seq\".CURRVAL FROM DUAL";
-        try{
-            ResultSet results = c.createStatement().executeQuery("SELECT \""+dbName+"s_seq\".CURRVAL FROM DUAL");
-            if(results.next())
-                seq_val=results.getInt("CURRVAL");
-        } catch (SQLException e) {
-            System.err.print(e.getMessage());
-        }
-        return seq_val;
-    }
+
 
     //***D
-    public void delete(Entity e) {
-        try {
-            c.createStatement().executeUpdate("DELETE FROM "+e.getClass().getSimpleName() + "S WHERE Id = "+e.getId());
+    public void delete(DbObject object) {
+        if (object instanceof Entity){
+            deleteEntity((Entity)object);
         }
-        catch (Exception ex) {
-            System.err.print(ex.getMessage());
+        else if (object instanceof Linker) {
+            deleteLinker((Linker)object);
         }
     }
 
@@ -150,11 +135,17 @@ public final class DatabaseAccessObject {
         return rs;
     }
 
+
     //PL/SQL-calling methods
-    private Integer AddUser(User u) {
+    private Integer mergeUser(User u) {
+        if (u.getId() != 0)
+            return updateUser(u);
+        else
+            return addUser(u);
+    }
+    private Integer addUser(User u) {
         Integer result = null;
 
-        //Remake as MergeUser;
         try {
             CallableStatement addUser = c.prepareCall("begin ? := Crud.AddUser( ?, ?, ?, ? ); end;");
             addUser.registerOutParameter(1, Types.NUMERIC);
@@ -171,8 +162,29 @@ public final class DatabaseAccessObject {
         }
         return result;
     }
-    private List<User> getAllUsers() {
-        List<User> users = new ArrayList<User>();
+    private Integer updateUser(User u) {
+        Integer result = null;
+
+        try {
+            CallableStatement updateUser = c.prepareCall("begin ? := Crud.UpdateUser( ?, ?, ?, ?, ?, ?); end;");
+            updateUser.registerOutParameter(1, Types.NUMERIC);
+            updateUser.setInt(2, u.getId());
+            updateUser.setString(3, u.getName());
+            updateUser.setString(4, u.getFirstName());
+            updateUser.setString(5, u.getLastName());
+            updateUser.setString(6, u.getEmail());
+            updateUser.setInt(7, u.getBalance());
+            updateUser.execute();
+            result = updateUser.getInt(1);
+            updateUser.close();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return result;
+    }
+    private Set<User> getAllUsers() {
+        Set<User> users = new HashSet<User>();
         try {
             CallableStatement readUsers = c.prepareCall("begin ? := Crud.ReadUser( ? ); end;");
             readUsers.registerOutParameter(1, OracleTypes.CURSOR);
@@ -250,6 +262,70 @@ public final class DatabaseAccessObject {
             System.err.println("Unknown error when creating a connection...");
         }
     }
+    private void mergeEntity(Entity e) {
+        Entity search = getById(e.getClass(), e.getId());
+        String sql;
+        if (search == null)
+            sql = prepareInsertStatement(e);
+        else
+            sql = prepareUpdateStatement(e);
+
+        try {
+            c.createStatement().executeUpdate(sql);
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+    }
+    private void mergeLinker(Linker l) {
+        String[] classNames = splitClasses(l.getClass().getSimpleName());
+
+        StringBuilder sql = new StringBuilder("INSERT INTO ");
+        sql.append(l.getClass().getSimpleName()).append(" ( ");
+        sql.append(classNames[0]).append("_Id, ").append(classNames[1]).append("_Id ) ");
+        sql.append("VALUES (").append(l.getId1()).append(", ").append(l.getId2()).append(" )");
+
+        try {
+            c.createStatement().executeUpdate(sql.toString());
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+    }
+    private void deleteEntity(Entity e) {
+        try {
+            c.createStatement().executeUpdate("DELETE FROM "+e.getClass().getSimpleName() + "S WHERE Id = "+e.getId());
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+    }
+    private void deleteLinker(Linker l) {
+        String[] classNames = splitClasses(l.getClass().getSimpleName());
+
+        StringBuilder statement = new StringBuilder("DELETE FROM ").append(l.getClass().getSimpleName());
+        statement.append(" WHERE ").append(classNames[0]).append("_Id = ").append(l.getId1());
+        statement.append(" AND ").append(classNames[1]).append("_Id = ").append(l.getId2());
+        try {
+            c.createStatement().executeUpdate(statement.toString());
+        }
+        catch (Exception ex) {
+            System.err.print(ex.getMessage());
+        }
+    }
+    private String[] splitClasses(String classes) {
+        String[] result = new String[2];
+        int index = 0;
+        while (true) {
+            index = classes.indexOf('s', index+1);
+            if (Character.isUpperCase(classes.charAt(index+1)))
+                break;
+        }
+        result[0] = classes.substring(0, index);
+        result[1] = classes.substring(index+1, classes.length()-1);
+
+        return result;
+    }
     private String prepareInsertStatement(Entity e) {
         String dateFormat = "YYYY-MM-DD";
         DateFormat df = new SimpleDateFormat(dateFormat);
@@ -315,14 +391,19 @@ public final class DatabaseAccessObject {
         return sb.toString();
     }
 
-    public ResultSet execute(String query){
+
+    public ResultSet execute(String query) {
         ResultSet rs = null;
         try {
             rs = c.createStatement().executeQuery(query);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return rs;
+    }
+
+    public static String[] test (String s){
+        return new DatabaseAccessObject().splitClasses(s);
+
     }
 }

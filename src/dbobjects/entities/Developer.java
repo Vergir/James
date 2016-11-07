@@ -1,35 +1,23 @@
-package entities;
+package dbobjects.entities;
 
-import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Created by Stanislav on 31.10.2016.
- * stas33553377@yandex.ru
- */
-
-
-public class Publisher implements Entity, Nameable {
+public class Developer implements Entity, Nameable {
     private int id;
     private String name;
     private String address;
     private String email;
 
-    public Publisher(){}
+    public Developer(){}
 
-    public Publisher(String name, String address, String email){
+    public Developer(String name, String address, String email){
         if (name == null || address == null || email == null)
-            throw new NullPointerException("initialization info for Publisher is invalid");
+            throw new NullPointerException("initialization info for Developer is invalid");
 
         this.name = name;
         this.address = address;
         this.email = email;
-    }
-
-    private Publisher(int id, String name, String address, String email) {
-        this(name, address, email);
-        this.id = id;
     }
 
     @Override
@@ -75,11 +63,9 @@ public class Publisher implements Entity, Nameable {
 
     @Override
     public String toString(){
-        return "Game: \n" +
+        return "Developer: \n" +
                 " Name: "+name+
                 "\n Address: "+address+
                 "\n Email: "+email+"\n";
     }
-
 }
-
