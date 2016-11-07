@@ -779,11 +779,16 @@ public class Application {
             else{
                 TransactionsGames tg = new TransactionsGames();
                 for(TransactionsGames j : tgs){
-                    if(j.getId1() == t.getId() && j.getId2()==g.getId())
+                    if(j.getId1() == t.getId() && j.getId2()==g.getId()) {
                         dao.delete(j);
+                        UsersGames ug = new UsersGames(t.getUser_id(),j.getGameId());
+                        dao.delete(ug);
+                    }
                 }
                 tg.setGameId(g.getId());
                 tg.setTransactionId(t.getId());
+                UsersGames ug = new UsersGames(t.getUser_id(),g.getId());
+                dao.merge(ug);
                 new_tgs.add(tg);
             }
         }
@@ -802,6 +807,8 @@ public class Application {
     }
 
     //Linker UsersGames
+    // createUsersGames unnecessary -> put into createTransactionGames
+    // updateUsersGames unnecessary -> put into updateTransactionGame
     private static void readUsersGames(User u){
         Set<UsersGames> ugs = dao.getAll(UsersGames.class);
         System.out.println("List of games in this user's library:");
