@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -22,8 +23,7 @@ public class Application {
     private static String password;
     private static Scanner reader = new Scanner(System.in);
     private static BufferedReader breader = new BufferedReader(new InputStreamReader(System.in));
-    private static DatabaseAccessObject dao ;
-    private static java.sql.Date today = new java.sql.Date(new java.util.Date().getTime());
+    private static DatabaseAccessObject dao;
 
     public static void start(String u, String pw) throws IOException {
         setUsername(u);
@@ -198,9 +198,9 @@ public class Application {
                 break;
             case 3:
                 g = fillGame(null);
+                dao.merge(g);
                 gd = createGamesDevelopers(g);
                 gp = createGamesPublishers(g);
-                dao.merge(g);
                 if(gp!=null)
                     dao.merge(gp);
                 if(gd!=null)
@@ -506,11 +506,10 @@ public class Application {
         System.out.println("\nDescription: ");
         String game_description = breader.readLine();
         System.out.println("\n Price: ");
-        int game_price = reader.nextInt();
+        double game_price = reader.nextDouble();
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
         if(g!=null){
-
             g.setPrice(game_price);
             g.setDescription(game_description);
             g.setProduct_type(game_producttype);
@@ -518,7 +517,7 @@ public class Application {
 
         }
         else
-            g= new Game(game_title,game_description,null,game_price,today,game_producttype);
+            g= new Game(game_title,game_description,null,game_price,new Date(),game_producttype);
         return g;
     }
     private static Developer fillDeveloper(Developer d) throws IOException {
@@ -572,7 +571,7 @@ public class Application {
             c.setScore(com_score);
         }
         else
-            c = new Comment(com_user_id,com_game_id,com_score,com_content,today);
+            c = new Comment(com_user_id,com_game_id,com_score,com_content,new Date());
         return c;
     }
     private static Transaction fillTransaction(Transaction t){
@@ -586,7 +585,7 @@ public class Application {
             t.setSum(tra_sum);
         }
         else
-            t= new Transaction(tra_user_id,tra_sum,today);
+            t= new Transaction(tra_user_id,tra_sum,new Date());
         return t;
     }
 
@@ -638,6 +637,11 @@ public class Application {
                 gd=i;
                 break;
             }
+        if(gd==null)
+        {
+            System.out.println("No dev assigned");
+            return;
+        }
         Developer dev = dao.getEntity(Developer.class,gd.getId2());
         System.out.println("Developer: "+dev.getName());
     }
@@ -713,6 +717,11 @@ public class Application {
                 gp=i;
                 break;
             }
+        if(gp==null)
+        {
+            System.out.println("No pub assigned");
+            return;
+        }
         Publisher pub = dao.getEntity(Publisher.class,gp.getId2());
         System.out.println("Publisher: "+pub.getName());
     }

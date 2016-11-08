@@ -6,6 +6,7 @@ import com.jcraft.jsch.Session;
 import dbobjects.DbObject;
 import dbobjects.entities.*;
 import dbobjects.linkers.Linker;
+import javafx.collections.transformation.SortedList;
 import oracle.jdbc.internal.OracleTypes;
 
 import java.lang.reflect.Field;
@@ -19,7 +20,7 @@ public final class DatabaseAccessObject {
     private static DatabaseAccessObject instance;
     private static Connection c;
 
-    private DatabaseAccessObject(){
+    private DatabaseAccessObject() {
         if (instance != null)
             throw new ExceptionInInitializerError("Tried to initialize singleton");
     }
@@ -35,24 +36,24 @@ public final class DatabaseAccessObject {
 
 
     //C*U*
-    public void merge(DbObject object){
+    public Integer merge(DbObject object) {
         if (object.getClass().equals(User.class)) {
-            mergeUser((User) object);
-            return;
+            return mergeUser((User) object);
         }
 
         if (object instanceof Entity) {
-            mergeEntity((Entity) object);
+            return mergeEntity((Entity) object);
+        } else if (object instanceof Linker) {
+            mergeLinker((Linker) object);
+            return null;
         }
-        else if (object instanceof Linker) {
-            mergeLinker((Linker)object);
-        }
+        return null;
     }
 
     //*R**
     public <T extends DbObject> Set<T> getAll(Class<T> returnType) {
         if (returnType.equals(User.class))
-            return (Set<T>)getAllUsers();
+            return (Set<T>) getAllUsers();
 
         Set<T> entities = new HashSet<T>();
         String optionalS;
@@ -64,18 +65,18 @@ public final class DatabaseAccessObject {
             ResultSet results;
             results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase() + optionalS);
             while (results.next())
-                entities.add((T)returnType.newInstance().fromResultSet(results));
-        }
-        catch (Exception e) {
+                entities.add((T) returnType.newInstance().fromResultSet(results));
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return entities;
     }
+
     public <T extends Entity> T getEntity(Class<T> returnType, int id) {
         if (returnType.equals(User.class)) {
             for (User u : getAllUsers())
                 if (u.getId() == id)
-                    return (T)u;
+                    return (T) u;
             return null;
         }
         T entity = null;
@@ -83,13 +84,13 @@ public final class DatabaseAccessObject {
             ResultSet results = c.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase()
                     + "S WHERE Id = " + id);
             if (results.next())
-                entity = (T)returnType.newInstance().fromResultSet(results);
-        }
-        catch (Exception e){
+                entity = (T) returnType.newInstance().fromResultSet(results);
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return entity;
     }
+
     public <T extends Linker> T getLinker(Class<T> returnType, int id1, int id2) {
         T linker = null;
         String[] classNames = splitClasses(returnType.getSimpleName());
@@ -99,17 +100,17 @@ public final class DatabaseAccessObject {
         try {
             ResultSet results = c.createStatement().executeQuery(sql.toString());
             if (results.next())
-                linker = (T)returnType.newInstance().fromResultSet(results);
-        }
-        catch (Exception e){
+                linker = (T) returnType.newInstance().fromResultSet(results);
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return linker;
     }
+
     public <T extends Nameable> T getByName(Class<T> returnType, String name) {
         String dbName;
         if (returnType.equals(User.class))
-            return (T)getUserByName(name);
+            return (T) getUserByName(name);
         if (returnType.equals(Game.class))
             dbName = "Title";
         else
@@ -118,11 +119,10 @@ public final class DatabaseAccessObject {
         T entity = null;
         try {
             ResultSet results = c.createStatement().executeQuery("SELECT r.* FROM " + returnType.getSimpleName().toUpperCase()
-                    + "S r WHERE r." + dbName + " = '"  + name + "'");
+                    + "S r WHERE r." + dbName + " = '" + name + "'");
             if (results.next())
-                entity = (T)returnType.newInstance().fromResultSet(results);
-        }
-        catch (Exception e){
+                entity = (T) returnType.newInstance().fromResultSet(results);
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return entity;
@@ -130,21 +130,19 @@ public final class DatabaseAccessObject {
 
     //***D
     public void delete(DbObject object) {
-        if (object instanceof Entity){
-            deleteEntity((Entity)object);
-        }
-        else if (object instanceof Linker) {
-            deleteLinker((Linker)object);
+        if (object instanceof Entity) {
+            deleteEntity((Entity) object);
+        } else if (object instanceof Linker) {
+            deleteLinker((Linker) object);
         }
     }
 
     //QOL-method
-    public ResultSet executeSelect(String query){
+    public ResultSet executeSelect(String query) {
         ResultSet rs = null;
         try {
             rs = c.createStatement().executeQuery(query);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.err.print(e.getMessage());
         }
         return rs;
@@ -158,6 +156,7 @@ public final class DatabaseAccessObject {
         else
             return addUser(u);
     }
+
     private Integer addUser(User u) {
         Integer result = null;
 
@@ -171,12 +170,12 @@ public final class DatabaseAccessObject {
             addUser.execute();
             result = addUser.getInt(1);
             addUser.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return result;
     }
+
     private Integer updateUser(User u) {
         Integer result = null;
 
@@ -192,12 +191,12 @@ public final class DatabaseAccessObject {
             updateUser.execute();
             result = updateUser.getInt(1);
             updateUser.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return result;
     }
+
     private Set<User> getAllUsers() {
         Set<User> users = new HashSet<User>();
         try {
@@ -205,17 +204,17 @@ public final class DatabaseAccessObject {
             readUsers.registerOutParameter(1, OracleTypes.CURSOR);
             readUsers.setNull(2, Types.NULL);
             readUsers.execute();
-            ResultSet rs = (ResultSet)readUsers.getObject(1);
+            ResultSet rs = (ResultSet) readUsers.getObject(1);
             while (rs.next())
-                users.add((User)new User().fromResultSet(rs));
+                users.add((User) new User().fromResultSet(rs));
             readUsers.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return users;
 
     }
+
     private User getUserByName(String nickName) {
         User u = null;
 
@@ -224,19 +223,18 @@ public final class DatabaseAccessObject {
             readUser.registerOutParameter(1, OracleTypes.CURSOR);
             readUser.setString(2, nickName);
             readUser.execute();
-            ResultSet rs = (ResultSet)readUser.getObject(1);
+            ResultSet rs = (ResultSet) readUser.getObject(1);
             if (rs.next())
-                u = (User)new User().fromResultSet(rs);
+                u = (User) new User().fromResultSet(rs);
             readUser.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return u;
     }
 
     //Service methods
-    private static void init(String username, String password){
+    private static void init(String username, String password) {
         final int lPort = 2222;
         final int rPort = 1521;
         final String rHost = "localhost";
@@ -253,21 +251,19 @@ public final class DatabaseAccessObject {
             session.setConfig("StrictHostKeyChecking", "no");
             session.connect();
             int assinged_port = session.setPortForwardingL(lPort, rHost, rPort);
-        }
-        catch (JSchException e) {
+        } catch (JSchException e) {
             System.err.println("Could not make an ssh tunnel...");
             e.printStackTrace();
         }
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             System.err.println("Oracle JDBC Driver not found...");
             e.printStackTrace();
         }
 
         try {
-            c = DriverManager.getConnection("jdbc:oracle:thin:@"+rHost+":"+lPort+":"+sid, username, password);
+            c = DriverManager.getConnection("jdbc:oracle:thin:@" + rHost + ":" + lPort + ":" + sid, username, password);
         } catch (Exception e) {
             System.err.println("Connection to DB failed...");
             e.printStackTrace();
@@ -277,7 +273,8 @@ public final class DatabaseAccessObject {
             System.err.println("Unknown error when creating a connection...");
         }
     }
-    private void mergeEntity(Entity e) {
+
+    private Integer mergeEntity(Entity e) {
         Entity search = getEntity(e.getClass(), e.getId());
         String sql;
         if (search == null)
@@ -286,11 +283,21 @@ public final class DatabaseAccessObject {
             sql = prepareUpdateStatement(e);
 
         try {
+            ResultSet rs;
             c.createStatement().executeUpdate(sql);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             System.err.print(ex.getMessage());
         }
+        if (e.getId() == 0) {
+            List<Integer> ids = new ArrayList<Integer>();
+            for (Entity entity : getAll((Class<Entity>) e.getClass()))
+                ids.add(entity.getId());
+            Collections.sort(ids);
+            setEntityId(e,ids.get(ids.size()-1));
+            return ids.get(ids.size()-1);
+        }
+
+        return null;
     }
     private void mergeLinker(Linker l) {
         String[] classNames = splitClasses(l.getClass().getSimpleName());
@@ -342,13 +349,14 @@ public final class DatabaseAccessObject {
         return result;
     }
     private String prepareInsertStatement(Entity e) {
-        String dateFormat = "YYYY-MM-DD";
-        DateFormat df = new SimpleDateFormat(dateFormat);
+        String dateFormat = "YYYY-MM-dd";
+        SimpleDateFormat df = new SimpleDateFormat(dateFormat);
         StringBuilder sb = new StringBuilder("INSERT INTO ");
         sb.append(e.getClass().getSimpleName().toUpperCase()).append("S ( Id");
         List<String> values = new ArrayList<String>();
 
         Field[] fields = e.getClass().getDeclaredFields();
+
         try {
             for (int i = 1; i < fields.length; i++) {
                 sb.append(", ").append(fields[i].getName());
@@ -403,6 +411,19 @@ public final class DatabaseAccessObject {
         catch (Exception ex) {
             ex.printStackTrace();
         }
+
         return sb.toString();
+    }
+    private void setEntityId(Entity e, int id) {
+        try {
+            for (Field f : e.getClass().getDeclaredFields()) {
+                f.setAccessible(true);
+                if (f.getName().toLowerCase().contains("id"))
+                    f.set(e, id);
+            }
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

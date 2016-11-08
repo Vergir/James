@@ -1,13 +1,6 @@
-import dao.DatabaseAccessObject;
-import dbobjects.DbObject;
-import dbobjects.linkers.GamesDevelopers;
-import dbobjects.linkers.Linker;
-
-import javax.xml.crypto.Data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Set;
 
 public class Main{
     static String username;
@@ -24,8 +17,7 @@ public class Main{
             username = br.readLine();
             password = br.readLine();
         }
-        
-        Application.start(username,password);
 
+        Application.start(username, password);
     }
 }
