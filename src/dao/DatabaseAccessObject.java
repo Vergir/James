@@ -128,7 +128,6 @@ public final class DatabaseAccessObject {
         return entity;
     }
 
-
     //***D
     public void delete(DbObject object) {
         if (object instanceof Entity){
@@ -405,21 +404,5 @@ public final class DatabaseAccessObject {
             ex.printStackTrace();
         }
         return sb.toString();
-    }
-
-
-    public ResultSet execute(String query) {
-        ResultSet rs = null;
-        try {
-            rs = c.createStatement().executeQuery(query);
-        } catch (Exception e) {
-            System.err.print(e.getMessage());
-        }
-        return rs;
-    }
-
-    public static String[] test (String s){
-        return new DatabaseAccessObject().splitClasses(s);
-
     }
 }

@@ -200,11 +200,11 @@ public class Application {
                 g = fillGame(null);
                 gd = createGamesDevelopers(g);
                 gp = createGamesPublishers(g);
-                if(gp!=null)
-                dao.merge(gp);
-                if(gd!=null)
-                dao.merge(gd);
                 dao.merge(g);
+                if(gp!=null)
+                    dao.merge(gp);
+                if(gd!=null)
+                    dao.merge(gd);
                 break;
             case 4:
                 System.out.println("Enter name of Game:");
@@ -220,19 +220,17 @@ public class Application {
                 g = dao.getEntity(Game.class,game_id);
                 if(g==null) {
                     g = fillGame(null);
-                    gd = createGamesDevelopers(g);
-                    gp = createGamesPublishers(g);
                 }
                 else {
                     g=fillGame(g);
-                    gd = updateGamesDevelopers(g);
-                    gp = updateGamesPublishers(g);
                 }
                 dao.merge(g);
+                gd = createGamesDevelopers(g);
+                gp = createGamesPublishers(g);
                 if(gp!=null)
-                dao.merge(gp);
+                    dao.merge(gp);
                 if(gd!=null)
-                dao.merge(gd);
+                    dao.merge(gd);
                 System.out.println("\n");
                 break;
             case 0:
@@ -456,20 +454,20 @@ public class Application {
                 break;
             case 2:
                 t = fillTransaction(null);
+                dao.merge(t);
                 tgs = createTransactionsGames(t);
                 for(TransactionsGames tg : tgs)
                     dao.merge(tg);
-                dao.merge(t);
                 break;
             case 3:
                 System.out.println("Enter id of Transaction:");
                 tra_id = reader.nextInt();
                 t = dao.getEntity(Transaction.class,tra_id);
                 t=fillTransaction(t);
+                dao.merge(t);
                 tgs = updateTransactionGames(t);
                 for(TransactionsGames tg : tgs)
                     dao.merge(tg);
-                dao.merge(t);
                 System.out.println("\n");
                 break;
             case 0:
