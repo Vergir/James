@@ -225,8 +225,8 @@ public class Application {
                     g=fillGame(g);
                 }
                 dao.merge(g);
-                gd = createGamesDevelopers(g);
-                gp = createGamesPublishers(g);
+                gd = updateGamesDevelopers(g);
+                gp = updateGamesPublishers(g);
                 if(gp!=null)
                     dao.merge(gp);
                 if(gd!=null)
