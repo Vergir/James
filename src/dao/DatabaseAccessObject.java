@@ -6,6 +6,7 @@ import com.jcraft.jsch.Session;
 import dbobjects.DbObject;
 import dbobjects.entities.*;
 import dbobjects.linkers.Linker;
+import javafx.collections.transformation.SortedList;
 import oracle.jdbc.internal.OracleTypes;
 
 import java.lang.reflect.Field;
@@ -126,7 +127,6 @@ public final class DatabaseAccessObject {
         }
         return entity;
     }
-
 
     //***D
     public void delete(DbObject object) {
@@ -276,7 +276,7 @@ public final class DatabaseAccessObject {
 
     private Integer mergeEntity(Entity e) {
         Entity search = getEntity(e.getClass(), e.getId());
-        PreparedStatement sql;
+        String sql;
         if (search == null)
             sql = prepareInsertStatement(e);
         else
@@ -284,17 +284,19 @@ public final class DatabaseAccessObject {
 
         try {
             ResultSet rs;
-            sql.executeUpdate();
-
-            rs = sql.getGeneratedKeys();
-            if (rs.next()) {
-                int id = rs.getInt(1);
-                setEntityId(e, id);
-                return id;
-            }
+            c.createStatement().executeUpdate(sql);
         } catch (Exception ex) {
             System.err.print(ex.getMessage());
         }
+        if (e.getId() == 0) {
+            List<Integer> ids = new ArrayList<Integer>();
+            for (Entity entity : getAll((Class<Entity>) e.getClass()))
+                ids.add(entity.getId());
+            Collections.sort(ids);
+            setEntityId(e,ids.get(ids.size()-1));
+            return ids.get(ids.size()-1);
+        }
+
         return null;
     }
     private void mergeLinker(Linker l) {
@@ -346,7 +348,7 @@ public final class DatabaseAccessObject {
 
         return result;
     }
-    private PreparedStatement prepareInsertStatement(Entity e) {
+    private String prepareInsertStatement(Entity e) {
         String dateFormat = "YYYY-MM-dd";
         SimpleDateFormat df = new SimpleDateFormat(dateFormat);
         StringBuilder sb = new StringBuilder("INSERT INTO ");
@@ -375,18 +377,9 @@ public final class DatabaseAccessObject {
             sb.append(", ").append(v);
         sb.append(" )");
 
-        PreparedStatement result = null;
-
-        try {
-            c.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return result;
+        return sb.toString();
     }
-    private PreparedStatement prepareUpdateStatement(Entity e) {
+    private String prepareUpdateStatement(Entity e) {
         String dateFormat = "YYYY-MM-DD";
         DateFormat df = new SimpleDateFormat(dateFormat);
         StringBuilder sb = new StringBuilder("UPDATE ");
@@ -418,21 +411,14 @@ public final class DatabaseAccessObject {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        PreparedStatement result = null;
-        try {
-            c.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
-        return result;
+        return sb.toString();
     }
     private void setEntityId(Entity e, int id) {
         try {
             for (Field f : e.getClass().getDeclaredFields()) {
                 f.setAccessible(true);
-                if (f.get(e).equals(id) && f.getName().toLowerCase().contains("id"))
+                if (f.getName().toLowerCase().contains("id"))
                     f.set(e, id);
             }
         }
