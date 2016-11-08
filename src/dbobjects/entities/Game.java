@@ -10,13 +10,13 @@ public class Game implements Entity, Nameable {
     String title;
     String description;
     Blob cover;
-    int price;
+    double price;
     Date released;
     String product_type;
 
     public Game(){}
 
-    public Game (String title, String description, Blob cover, int price, Date released, String product_type){
+    public Game (String title, String description, Blob cover, double price, Date released, String product_type){
         if(title == null || description == null|| released == null || product_type == null)
             throw new NullPointerException("initialization info for Game is invalid");
 
@@ -65,7 +65,7 @@ public class Game implements Entity, Nameable {
     public Blob getcover() {
         return cover;
     }
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
     public java.util.Date getReleased() {
@@ -84,7 +84,7 @@ public class Game implements Entity, Nameable {
     public void setCover(Blob c) {
         this.cover = c;
     }
-    public void setPrice(int p) {
+    public void setPrice(double p) {
         this.price = p;
     }
     public void setReleased(Date r) {

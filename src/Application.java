@@ -506,7 +506,7 @@ public class Application {
         System.out.println("\nDescription: ");
         String game_description = breader.readLine();
         System.out.println("\n Price: ");
-        int game_price = reader.nextInt();
+        double game_price = reader.nextDouble();
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
         if(g!=null){
