@@ -1,9 +1,9 @@
 package dbobjects.entities;
 
 import java.sql.Blob;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 public class Game implements Entity, Nameable {
     int id;
@@ -11,7 +11,7 @@ public class Game implements Entity, Nameable {
     String description;
     Blob cover;
     int price;
-    java.util.Date released;
+    Date released;
     String product_type;
 
     public Game(){}
