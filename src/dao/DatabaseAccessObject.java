@@ -6,7 +6,6 @@ import com.jcraft.jsch.Session;
 import dbobjects.DbObject;
 import dbobjects.entities.*;
 import dbobjects.linkers.Linker;
-import javafx.collections.transformation.SortedList;
 import oracle.jdbc.internal.OracleTypes;
 
 import java.lang.reflect.Field;
@@ -37,6 +36,8 @@ public final class DatabaseAccessObject {
 
     //C*U*
     public Integer merge(DbObject object) {
+        if(object == null)
+            return -1;
         if (object.getClass().equals(User.class)) {
             return mergeUser((User) object);
         }

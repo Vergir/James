@@ -64,7 +64,8 @@ public class Developer implements Entity, Nameable {
     @Override
     public String toString(){
         return "Developer: \n" +
-                " Name: "+name+
+                " id: "+id+
+                "\n Name: "+name+
                 "\n Address: "+address+
                 "\n Email: "+email+"\n";
     }

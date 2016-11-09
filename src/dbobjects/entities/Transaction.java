@@ -66,7 +66,8 @@ public class Transaction implements Entity{
     @Override
     public String toString(){
         return "Transaction: \n" +
-                " User_id: "+user_id+
+                " id: "+id+
+                "\n User_id: "+user_id+
                 "\n Sum: "+sum+
                 "\n T_Date: "+t_Date+"\n";
     }
