@@ -2,14 +2,10 @@ package dao;
 
 import dbobjects.DbObject;
 import dbobjects.entities.Entity;
-import dbobjects.entities.Game;
 import dbobjects.entities.Nameable;
-import dbobjects.entities.User;
 import dbobjects.linkers.Linker;
 
-import java.sql.ResultSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Vergir on 14/11/2016.

@@ -86,7 +86,8 @@ public class Comment implements Entity {
     @Override
     public String toString(){
         return "Comment: \n" +
-                " User_id: "+user_id+
+                " id: "+id+
+                "\n User_id: "+user_id+
                 "\n Game_id: "+game_id+
                 "\n Score: "+score+
                 "\n Content: "+content+

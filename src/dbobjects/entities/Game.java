@@ -97,7 +97,8 @@ public class Game implements Entity, Nameable {
     @Override
     public String toString(){
         return "Game: \n" +
-                " Title: "+title+
+                " id: "+id+
+                "\n Title: "+title+
                 "\n Description: "+description+
                 "\n Price: "+price+
                 "\n Released: "+released+

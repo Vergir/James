@@ -107,7 +107,8 @@ public class User implements Entity, Nameable{
     @Override
     public String toString(){
         return "User: \n" +
-                " Nickname: "+nickName+
+                " id: "+id+
+                "\n Nickname: "+nickName+
                 "\n First Name: "+firstName+
                 "\n Last Name: "+ lastName+
                 "\n Email: "+email+

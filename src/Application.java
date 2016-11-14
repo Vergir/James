@@ -6,6 +6,7 @@ import dbobjects.linkers.GamesPublishers;
 import dbobjects.linkers.TransactionsGames;
 import dbobjects.linkers.UsersGames;
 
+import javax.annotation.processing.SupportedSourceVersion;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -96,14 +97,20 @@ public class Application {
         }
         catch (Exception e)
         {
-            System.out.println("Wrong input");
+            System.out.println("Wrong input! Enter an integer number next time");
         }
         User u;
         int user_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of user:");
-                user_id = reader.nextInt();
+                try {
+                    user_id = reader.nextInt();
+                }
+                catch (Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 u = dao.getEntity(User.class,user_id);
                 if(u!=null) {
                     System.out.println(u.toString());
@@ -126,7 +133,10 @@ public class Application {
             case 3:
                 u = fillUser(null);
                 dao.merge(u);
-                System.out.println("\n");
+                if(u!=null)
+                    System.out.println("User inserted with id: "+u.getId()+"\n");
+                else
+                    System.out.println("User has not been inserted");
                 break;
             case 4:
                 System.out.println("Enter name of user:");
@@ -134,6 +144,7 @@ public class Application {
                 u=dao.getByName(User.class,Name_del);
                 dao.delete(u);
                 System.out.println("\n");
+
                 break;
             case 5:
                 System.out.println("Enter id of user:");
@@ -141,7 +152,10 @@ public class Application {
                 u = dao.getEntity(User.class,user_id);
                 u=fillUser(u);
                 dao.merge(u);
-                System.out.println("\n");
+                if(u!=null)
+                    System.out.println("User updated (id: "+u.getId()+")\n");
+                else
+                    System.out.println("User has not been updated");
                 break;
             case 0:
                 break;
@@ -173,7 +187,13 @@ public class Application {
         switch (input){
             case 1:
                 System.out.println("Enter id of Game:");
-                game_id = reader.nextInt();
+                try{
+                    game_id = reader.nextInt();
+                }
+                catch (Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 g = dao.getEntity(Game.class,game_id);
                 if(g!=null) {
                     System.out.println(g.toString());
@@ -204,6 +224,10 @@ public class Application {
                     dao.merge(gp);
                 if(gd!=null)
                     dao.merge(gd);
+                if(g!=null)
+                    System.out.println("Game inserted with id: "+g.getId()+"\n");
+                else
+                    System.out.println("Game has not been inserted");
                 break;
             case 4:
                 System.out.println("Enter name of Game:");
@@ -230,7 +254,10 @@ public class Application {
                     dao.merge(gp);
                 if(gd!=null)
                     dao.merge(gd);
-                System.out.println("\n");
+                if(g!=null)
+                    System.out.println("Game updated with id: "+g.getId()+"\n");
+                else
+                    System.out.println("Game has not been updated");
                 break;
             case 0:
                 break;
@@ -260,7 +287,13 @@ public class Application {
         switch (input){
             case 1:
                 System.out.println("Enter id of Developer:");
-                dev_id = reader.nextInt();
+                try{
+                    dev_id = reader.nextInt();
+                }
+                catch (Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 d = dao.getEntity(Developer.class,dev_id);
                 if(d==null)
                     System.out.println("There is no Developer with this id");
@@ -283,6 +316,10 @@ public class Application {
             case 3:
                 d=fillDeveloper(null);
                 dao.merge(d);
+                if(d!=null)
+                    System.out.println("Developer inserted with id: "+d.getId()+"\n");
+                else
+                    System.out.println("Developer has not been inserted");
                 break;
             case 4:
                 System.out.println("Enter name of Developer:");
@@ -296,7 +333,10 @@ public class Application {
                 d = dao.getEntity(Developer.class,dev_id);
                 d=fillDeveloper(d);
                 dao.merge(d);
-                System.out.println("\n");
+                if(d!=null)
+                    System.out.println("Developer updated with id: "+d.getId()+"\n");
+                else
+                    System.out.println("Developer has not been updated");
                 break;
             case 0:
                 break;
@@ -322,10 +362,17 @@ public class Application {
             System.out.println("Wrong input");
         }
         Publisher p;
+        int pub_id;
         switch (input){
             case 1:
                 System.out.println("Enter id of Publisher:");
-                int pub_id = reader.nextInt();
+                try{
+                    pub_id = reader.nextInt();
+                }
+                catch(Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 p = dao.getEntity(Publisher.class,pub_id);
                 if(p==null)
                     System.out.println("There is no Publisher with this id");
@@ -348,6 +395,10 @@ public class Application {
             case 3:
                 p=fillPublisher(null);
                 dao.merge(p);
+                if(p!=null)
+                    System.out.println("Publisher inserted with id: "+p.getId()+"\n");
+                else
+                    System.out.println("Publisher has not been inserted");
                 break;
             case 4:
                 System.out.println("Enter name of Publisher:");
@@ -361,7 +412,10 @@ public class Application {
                 p = dao.getEntity(Publisher.class,pub_id);
                 p=fillPublisher(p);
                 dao.merge(p);
-                System.out.println("\n");
+                if(p!=null)
+                    System.out.println("Publisher updated with id: "+p.getId()+"\n");
+                else
+                    System.out.println("Publisher has not been updated");
                 break;
             case 0:
                 break;
@@ -390,7 +444,13 @@ public class Application {
         switch (input){
             case 1:
                 System.out.println("Enter id of Comment:");
-                com_id = reader.nextInt();
+                try{
+                    com_id = reader.nextInt();
+                }
+                catch (Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 c = dao.getEntity(Comment.class,com_id);
                 if(c==null)
                     System.out.println("There is no Comment with this id");
@@ -400,6 +460,10 @@ public class Application {
             case 2:
                 c=fillComment(null);
                 dao.merge(c);
+                if(c!=null)
+                    System.out.println("Comment inserted with id: "+c.getId()+"\n");
+                else
+                    System.out.println("Comment has not been inserted");
                 break;
             case 3:
                 System.out.println("Enter id of Comment:");
@@ -407,13 +471,16 @@ public class Application {
                 c=dao.getEntity(Comment.class,id_del);
                 dao.delete(c);
                 break;
-            case 5:
+            case 4:
                 System.out.println("Enter id of Comment:");
                 com_id = reader.nextInt();
                 c = dao.getEntity(Comment.class,com_id);
                 c=fillComment(c);
                 dao.merge(c);
-                System.out.println("\n");
+                if(c!=null)
+                    System.out.println("Comment updated with id: "+c.getId()+"\n");
+                else
+                    System.out.println("Comment has not been updated");
                 break;
             case 0:
                 break;
@@ -442,7 +509,13 @@ public class Application {
         switch (input){
             case 1:
                 System.out.println("Enter id of Transaction:");
-                tra_id = reader.nextInt();
+                try{
+                    tra_id = reader.nextInt();
+                }
+                catch(Exception e){
+                    System.out.println("Wrong input! Enter an integer number next time.");
+                    return;
+                }
                 t = dao.getEntity(Transaction.class,tra_id);
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
@@ -457,6 +530,10 @@ public class Application {
                 tgs = createTransactionsGames(t);
                 for(TransactionsGames tg : tgs)
                     dao.merge(tg);
+                if(t!=null)
+                    System.out.println("Transaction inserted with id: "+t.getId()+"\n");
+                else
+                    System.out.println("Transaction has not been inserted");
                 break;
             case 3:
                 System.out.println("Enter id of Transaction:");
@@ -467,7 +544,10 @@ public class Application {
                 tgs = updateTransactionGames(t);
                 for(TransactionsGames tg : tgs)
                     dao.merge(tg);
-                System.out.println("\n");
+                if(t!=null)
+                    System.out.println("Transaction updated with id: "+t.getId()+"\n");
+                else
+                    System.out.println("Transaction has not been updated");
                 break;
             case 0:
                 break;
@@ -504,8 +584,15 @@ public class Application {
         String game_title = breader.readLine();
         System.out.println("\nDescription: ");
         String game_description = breader.readLine();
-        System.out.println("\n Price: ");
-        double game_price = reader.nextDouble();
+        System.out.println("\nPrice: ");
+        double game_price;
+        try{
+            game_price = reader.nextDouble();
+        }
+        catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input double number next time (user '.' instead of ',')");
+            return null;
+        }
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
         if(g!=null){
@@ -556,11 +643,29 @@ public class Application {
     private static Comment fillComment(Comment c) throws IOException {
         System.out.println("Enter parameters for Comment:");
         System.out.println("\nUser_id: ");
-        int com_user_id = reader.nextInt();
+        int com_user_id;
+        try{
+            com_user_id=reader.nextInt();
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input integer number");
+            return null;
+        }
         System.out.println("\nGame_id: ");
-        int com_game_id = reader.nextInt();
+        int com_game_id;
+        try{
+            com_game_id=reader.nextInt();
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input integer number");
+            return null;
+        }
         System.out.println("\nScore: ");
-        int com_score = reader.nextInt();
+        int com_score;
+        try{
+            com_score=reader.nextInt();
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input integer number");
+            return null;
+        }
         System.out.println("\nContent: ");
         String com_content = breader.readLine();
         if(c!=null){
@@ -576,9 +681,21 @@ public class Application {
     private static Transaction fillTransaction(Transaction t){
         System.out.println("Enter parameters for Transaction:");
         System.out.println("\nUser_id: ");
-        int tra_user_id = reader.nextInt();
+        int tra_user_id;
+        try{
+            tra_user_id=reader.nextInt();
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input integer number");
+            return null;
+        }
         System.out.println("\nSum: ");
-        int tra_sum = reader.nextInt();
+        int tra_sum;
+        try{
+            tra_sum=reader.nextInt();
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage()+"\n input integer number");
+            return null;
+        }
         if(t!=null){
             t.setUser_id(tra_user_id);
             t.setSum(tra_sum);
@@ -647,6 +764,10 @@ public class Application {
     private static void readGamesDevelopers(Developer dev){
         System.out.println("List of games by this dev:");
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
+        if(gds.size() == 0){
+            System.out.println("No games by this developer");
+            return;
+        }
         for(GamesDevelopers gd: gds){
             if(gd.getId2()==dev.getId()) {
                 Game game = dao.getEntity(Game.class,gd.getId1());
@@ -736,6 +857,10 @@ public class Application {
     }
     private static void deleteGamesPublishers(Publisher pub){
         Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
+        if(gps.size() == 0){
+            System.out.println("No games by this publishers");
+            return;
+        }
         for(GamesPublishers gp : gps){
             if(gp.getId2()==pub.getId())
                 dao.delete(gp);
@@ -802,6 +927,10 @@ public class Application {
     }
     private static void readTransactionGames(Transaction t){
         Set<TransactionsGames> tgs = dao.getAll(TransactionsGames.class);
+        if(tgs.size() == 0){
+            System.out.println("No games in this transaction 0_o");
+            return;
+        }
         System.out.println("List of games on this transaction:");
         for(TransactionsGames i : tgs){
             if(i.getId1() == t.getId()) {
@@ -817,6 +946,10 @@ public class Application {
     // updateUsersGames unnecessary -> put into updateTransactionGame
     private static void readUsersGames(User u){
         Set<UsersGames> ugs = dao.getAll(UsersGames.class);
+        if(ugs.size() == 0){
+            System.out.println("No games owned by this user");
+            return;
+        }
         System.out.println("List of games in this user's library:");
         for(UsersGames i : ugs)
             if (i.getId1() == u.getId()) {
