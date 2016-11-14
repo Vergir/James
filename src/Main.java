@@ -1,3 +1,6 @@
+import dao.BareboneDao;
+import dao.RedisEnhancedDao;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +21,8 @@ public class Main{
             password = br.readLine();
         }
 
-        Application.start(username, password);
+        RedisEnhancedDao dao = RedisEnhancedDao.getInstance(username, password, "46.101.212.60");
+        //BareboneDao dao = BareboneDao.getInstance(username,password);
+        Application.start(dao);
     }
 }

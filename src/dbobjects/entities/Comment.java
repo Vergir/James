@@ -1,5 +1,6 @@
 
 package dbobjects.entities;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;

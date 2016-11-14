@@ -1,3 +1,4 @@
+import dao.BareboneDao;
 import dao.DatabaseAccessObject;
 import dbobjects.entities.*;
 import dbobjects.linkers.GamesDevelopers;
@@ -25,10 +26,8 @@ public class Application {
     private static BufferedReader breader = new BufferedReader(new InputStreamReader(System.in));
     private static DatabaseAccessObject dao;
 
-    public static void start(String u, String pw) throws IOException {
-        setUsername(u);
-        setPassword(pw);
-        dao = DatabaseAccessObject.getInstance(username,password);
+    public static void start(DatabaseAccessObject dao) throws IOException {
+        Application.dao = dao;
         int while_flag =1;
         int input=7, input_flag=1;
         while (while_flag == 1){
