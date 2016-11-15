@@ -26,6 +26,7 @@ public class Application {
     private static Scanner reader = new Scanner(System.in);
     private static BufferedReader breader = new BufferedReader(new InputStreamReader(System.in));
     private static DatabaseAccessObject dao;
+    private static long begin,end;
 
     public static void start(DatabaseAccessObject dao) throws IOException {
         Application.dao = dao;
@@ -90,7 +91,8 @@ public class Application {
                 "2. Get user by Name \n" +
                 "3. Create User \n" +
                 "4. Delete User by Name \n" +
-                "5. Update User by Id" +
+                "5. Update User by Id \n" +
+                "6. Get all users \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -111,24 +113,32 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 u = dao.getEntity(User.class,user_id);
+                endTimer();
                 if(u!=null) {
                     System.out.println(u.toString());
                     readUsersGames(u);
                 }
                 else
                     System.out.println("There is no User with this id");
+                printTimer();
                 break;
             case 2:
                 System.out.println("Enter name of user:");
                 String User_Name = breader.readLine();
+                startTimer();
                 u = dao.getByName(User.class,User_Name);
                 if(u != null) {
                     System.out.println(u.toString());
                     readUsersGames(u);
+                    endTimer();
                 }
-                else
+                else {
                     System.out.println("There is no User with this name \n");
+                    endTimer();
+                }
+                printTimer();
                 break;
             case 3:
                 u = fillUser(null);
@@ -157,6 +167,16 @@ public class Application {
                 else
                     System.out.println("User has not been updated");
                 break;
+            case 6:
+                System.out.println("List of Users:");
+                startTimer();
+                Set<User> us = dao.getAll(User.class);
+                endTimer();
+                for(User u_i : us){
+                    System.out.println("Id: "+u_i.getId()+" Nickname:"+u_i.getName());
+                }
+                printTimer();
+                break;
             case 0:
                 break;
             default:
@@ -172,6 +192,7 @@ public class Application {
                 "3. Create Game \n" +
                 "4. Delete Game by Name \n" +
                 "5. Update Game by Id \n" +
+                "6. Get all Games \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -194,26 +215,36 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 g = dao.getEntity(Game.class,game_id);
                 if(g!=null) {
                     System.out.println(g.toString());
                     readGamesDevelopers(g);
                     readGamesPublishers(g);
+                    endTimer();
                 }
-                else
+                else {
+                    endTimer();
                     System.out.println("There is no User with this id");
+                }
+                printTimer();
                 break;
             case 2:
                 System.out.println("Enter title of Game:");
                 String game_Title = breader.readLine();
+                startTimer();
                 g = dao.getByName(Game.class,game_Title);
                 if(g!=null) {
                     System.out.println(g.toString());
                     readGamesDevelopers(g);
                     readGamesPublishers(g);
+                    endTimer();
                 }
-                else
+                else {
                     System.out.println("There is no User with this id");
+                    endTimer();
+                }
+                printTimer();
                 break;
             case 3:
                 g = fillGame(null);
@@ -259,6 +290,15 @@ public class Application {
                 else
                     System.out.println("Game has not been updated");
                 break;
+            case 6:
+                System.out.println("List of Games:");
+                startTimer();
+                Set<Game> gs = dao.getAll(Game.class);
+                endTimer();
+                for(Game g_i : gs)
+                    System.out.println("Id: "+g_i.getId()+" Title: "+g_i.getTitle());
+                printTimer();
+                break;
             case 0:
                 break;
             default:
@@ -274,6 +314,7 @@ public class Application {
                 "3. Create Developer \n" +
                 "4. Delete Developer by Name \n" +
                 "5. Update Developer by Id \n" +
+                "6. Get all Developers \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -294,24 +335,34 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 d = dao.getEntity(Developer.class,dev_id);
-                if(d==null)
+                if(d==null) {
+                    endTimer();
                     System.out.println("There is no Developer with this id");
+                }
                 else {
                     System.out.println(d.toString());
                     readGamesDevelopers(d);
+                    endTimer();
                 }
+                printTimer();
                 break;
             case 2:
                 System.out.println("Enter Name of Developer:");
                 String dev_Name = breader.readLine();
+                startTimer();
                 d = dao.getByName(Developer.class,dev_Name);
-                if(d==null)
+                if(d==null) {
                     System.out.println("There is no Developer with this id");
+                    endTimer();
+                }
                 else {
                     System.out.println(d.toString());
                     readGamesDevelopers(d);
+                    endTimer();
                 }
+                printTimer();
                 break;
             case 3:
                 d=fillDeveloper(null);
@@ -338,6 +389,15 @@ public class Application {
                 else
                     System.out.println("Developer has not been updated");
                 break;
+            case 6:
+                System.out.println("List of Developers:");
+                startTimer();
+                Set<Developer> ds = dao.getAll(Developer.class);
+                endTimer();
+                for(Developer d_i : ds)
+                    System.out.println("Id: "+d_i.getId()+" Name: "+d_i.getName());
+                printTimer();
+                break;
             case 0:
                 break;
             default:
@@ -353,6 +413,7 @@ public class Application {
                 "3. Create Publisher \n" +
                 "4. Delete Publisher by Name \n" +
                 "5. Update Publisher by Id \n" +
+                "6. Get all Publishers \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -373,24 +434,33 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 p = dao.getEntity(Publisher.class,pub_id);
+                endTimer();
                 if(p==null)
                     System.out.println("There is no Publisher with this id");
                 else {
                     System.out.println(p.toString());
                     readGamesPublishers(p);
+                    endTimer();
                 }
+                printTimer();
                 break;
             case 2:
                 System.out.println("Enter Name of Publisher:");
                 String pub_Name = breader.readLine();
+                startTimer();
                 p = dao.getByName(Publisher.class,pub_Name);
-                if(p==null)
+                if(p==null) {
+                    endTimer();
                     System.out.println("There is no Publisher with this id");
+                }
                 else {
                     System.out.println(p.toString());
                     readGamesPublishers(p);
+                    endTimer();
                 }
+                printTimer();
                 break;
             case 3:
                 p=fillPublisher(null);
@@ -417,6 +487,15 @@ public class Application {
                 else
                     System.out.println("Publisher has not been updated");
                 break;
+            case 6:
+                System.out.println("List of Publishers:");
+                startTimer();
+                Set<Publisher> ps = dao.getAll(Publisher.class);
+                endTimer();
+                for(Publisher p_i : ps)
+                    System.out.println("Id: "+p_i.getId()+" Name: "+p_i.getName());
+                printTimer();
+                break;
             case 0:
                 break;
             default:
@@ -431,6 +510,7 @@ public class Application {
                 "2. Create Comment \n" +
                 "3. Delete Comment by Id \n" +
                 "4. Update Comment by Id \n" +
+                "5. Get all Comments \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -451,11 +531,14 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 c = dao.getEntity(Comment.class,com_id);
+                endTimer();
                 if(c==null)
                     System.out.println("There is no Comment with this id");
                 else
                     System.out.println(c.toString());
+                printTimer();
                 break;
             case 2:
                 c=fillComment(null);
@@ -482,6 +565,15 @@ public class Application {
                 else
                     System.out.println("Comment has not been updated");
                 break;
+            case 5:
+                System.out.println("List of Comments:");
+                startTimer();
+                Set<Comment> cs = dao.getAll(Comment.class);
+                endTimer();
+                for(Comment c_i : cs)
+                    System.out.println("Id: "+c_i.getId()+" User_id: "+c_i.getUser_id()+" Score: "+c_i.getScore());
+                printTimer();
+                break;
             case 0:
                 break;
             default:
@@ -495,6 +587,7 @@ public class Application {
                 "1. Get Transaction by Id \n" +
                 "2. Create Transaction \n" +
                 "3. Update Transaction by Id \n" +
+                "4. Get all Transactions \n" +
                 "0. Back \n");
         try {
             input = reader.nextInt();
@@ -516,13 +609,17 @@ public class Application {
                     System.out.println("Wrong input! Enter an integer number next time.");
                     return;
                 }
+                startTimer();
                 t = dao.getEntity(Transaction.class,tra_id);
+                endTimer();
                 if(t==null)
                     System.out.println("There is no Transaction with this id");
                 else {
                     System.out.println(t.toString());
                     readTransactionGames(t);
+                    endTimer();
                 }
+                printTimer();
                 break;
             case 2:
                 t = fillTransaction(null);
@@ -548,6 +645,15 @@ public class Application {
                     System.out.println("Transaction updated with id: "+t.getId()+"\n");
                 else
                     System.out.println("Transaction has not been updated");
+                break;
+            case 4:
+                System.out.println("List of Transactions:");
+                startTimer();
+                Set<Transaction> ts = dao.getAll(Transaction.class);
+                endTimer();
+                for(Transaction t_i : ts)
+                    System.out.println("Id: "+t_i.getId()+" User_id: "+t_i.getUser_id()+" Sum: "+t_i.getSum());
+                printTimer();
                 break;
             case 0:
                 break;
@@ -959,6 +1065,19 @@ public class Application {
             }
     }
 
+    private static void startTimer(){
+        begin=System.currentTimeMillis();
+    }
+    private static void endTimer(){
+        end=System.currentTimeMillis();
+    }
+    private static void printTimer(){
+        System.out.println("Time spent in millis: "+(end-begin));
+    }
+    private static void clearTimer(){
+        begin=0;
+        end=0;
+    }
     private static void setUsername(String username) {
         Application.username = username;
     }

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Vergir on 14/11/2016.
  */
 public final class RedisEnhancedDao implements DatabaseAccessObject {
+
     private static RedisEnhancedDao instance;
     private Jedis redis;
     private BareboneDao realDao;

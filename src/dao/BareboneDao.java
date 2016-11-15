@@ -33,7 +33,6 @@ public final class BareboneDao implements DatabaseAccessObject{
         return instance;
     }
 
-
     @Override
     public Integer merge(DbObject object) {
         if (object.getClass().equals(User.class)) {
