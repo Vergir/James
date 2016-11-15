@@ -41,7 +41,7 @@ public class Game implements Entity, Nameable {
             this.title = rs.getString("Title");
             this.description = rs.getString("Description");
             this.cover = rs.getBlob("Cover");
-            this.price = rs.getInt("Price");
+            this.price = rs.getDouble("Price");
             this.released = rs.getDate("Released");
             this.product_type = rs.getString("Product_type");
         }

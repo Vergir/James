@@ -1,12 +1,11 @@
-import dao.BareboneDao;
 import dao.DatabaseAccessObject;
+import dao.RedisEnhancedDao;
 import dbobjects.entities.*;
 import dbobjects.linkers.GamesDevelopers;
 import dbobjects.linkers.GamesPublishers;
 import dbobjects.linkers.TransactionsGames;
 import dbobjects.linkers.UsersGames;
 
-import javax.annotation.processing.SupportedSourceVersion;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,9 +28,10 @@ public class Application {
     private static long begin,end;
 
     public static void start(DatabaseAccessObject dao) throws IOException {
+        boolean redisEnabled = RedisEnhancedDao.class.isAssignableFrom(dao.getClass());
         Application.dao = dao;
         int while_flag =1;
-        int input=7, input_flag=1;
+        int input=8, input_flag=1;
         while (while_flag == 1){
             do{
             System.out.println("Choose an option \n" +
@@ -41,6 +41,7 @@ public class Application {
                     "4. Publisher \n" +
                     "5. Comment \n" +
                     "6. Transaction \n" +
+                    (redisEnabled ? "7. Redis Config\n" : "") +
                     "0. Exit \n" );
                 try {
                     input_flag=0;
@@ -71,16 +72,22 @@ public class Application {
                 case 6:
                     callTransaction();
                     break;
+                case 7:
+                    if (redisEnabled)
+                        callRedisConfig();
+                    else
+                        System.out.println("Please enter correct option");
+                    break;
                 case 0:
                     while_flag=0;
                     System.out.println("Thank you for using James!");
                     break;
                 default:
-                    System.out.println("Please, enter a correct option" +
-                            "\n P.S. a number from 1 to 6 \n");
+                    System.out.println("Please enter a correct option");
                     break;
             }
         }
+        System.exit(0);
     }
 
     //Entities menu
@@ -143,7 +150,7 @@ public class Application {
             case 3:
                 u = fillUser(null);
                 dao.merge(u);
-                if(u!=null)
+                if(u!=null && u.getId() != 0)
                     System.out.println("User inserted with id: "+u.getId()+"\n");
                 else
                     System.out.println("User has not been inserted");
@@ -162,10 +169,6 @@ public class Application {
                 u = dao.getEntity(User.class,user_id);
                 u=fillUser(u);
                 dao.merge(u);
-                if(u!=null)
-                    System.out.println("User updated (id: "+u.getId()+")\n");
-                else
-                    System.out.println("User has not been updated");
                 break;
             case 6:
                 System.out.println("List of Users:");
@@ -202,8 +205,8 @@ public class Application {
             System.out.println("Wrong input");
         }
         Game g;
-        GamesDevelopers gd;
-        GamesPublishers gp;
+        GamesDevelopers gd = null;
+        GamesPublishers gp = null;
         int game_id;
         switch (input){
             case 1:
@@ -225,7 +228,7 @@ public class Application {
                 }
                 else {
                     endTimer();
-                    System.out.println("There is no User with this id");
+                    System.out.println("There is no Game with this id");
                 }
                 printTimer();
                 break;
@@ -241,7 +244,7 @@ public class Application {
                     endTimer();
                 }
                 else {
-                    System.out.println("There is no User with this id");
+                    System.out.println("There is no Game with this id");
                     endTimer();
                 }
                 printTimer();
@@ -249,13 +252,15 @@ public class Application {
             case 3:
                 g = fillGame(null);
                 dao.merge(g);
-                gd = createGamesDevelopers(g);
-                gp = createGamesPublishers(g);
+                if (g != null && g.getId() != 0) {
+                    gd = createGamesDevelopers(g);
+                    gp = createGamesPublishers(g);
+                }
                 if(gp!=null)
                     dao.merge(gp);
                 if(gd!=null)
                     dao.merge(gd);
-                if(g!=null)
+                if(g!=null && g.getId() != 0)
                     System.out.println("Game inserted with id: "+g.getId()+"\n");
                 else
                     System.out.println("Game has not been inserted");
@@ -367,7 +372,7 @@ public class Application {
             case 3:
                 d=fillDeveloper(null);
                 dao.merge(d);
-                if(d!=null)
+                if(d!=null && d.getId() != 0)
                     System.out.println("Developer inserted with id: "+d.getId()+"\n");
                 else
                     System.out.println("Developer has not been inserted");
@@ -465,7 +470,7 @@ public class Application {
             case 3:
                 p=fillPublisher(null);
                 dao.merge(p);
-                if(p!=null)
+                if(p!=null && p.getId() != 0)
                     System.out.println("Publisher inserted with id: "+p.getId()+"\n");
                 else
                     System.out.println("Publisher has not been inserted");
@@ -543,7 +548,7 @@ public class Application {
             case 2:
                 c=fillComment(null);
                 dao.merge(c);
-                if(c!=null)
+                if(c!=null && c.getId() != 0)
                     System.out.println("Comment inserted with id: "+c.getId()+"\n");
                 else
                     System.out.println("Comment has not been inserted");
@@ -627,7 +632,7 @@ public class Application {
                 tgs = createTransactionsGames(t);
                 for(TransactionsGames tg : tgs)
                     dao.merge(tg);
-                if(t!=null)
+                if(t!=null && t.getId() != 0)
                     System.out.println("Transaction inserted with id: "+t.getId()+"\n");
                 else
                     System.out.println("Transaction has not been inserted");
@@ -660,6 +665,54 @@ public class Application {
             default:
                 System.out.println("Incorrect option");
                 break;
+        }
+    }
+    private static void callRedisConfig() throws IOException{
+        RedisEnhancedDao red = (RedisEnhancedDao)dao;
+
+        int input=0;
+        System.out.println("Cache Expiration Time: "+red.getExpirationTime()+" minutes");
+        System.out.println("Cache Size: "+red.getCacheSize() + " Key-Value Pairs");
+        System.out.println("Choose an option: \n" +
+                "1. Set Cache Expiration Time \n" +
+                "2. Flush Cache \n" +
+                "3. Output Cache Keys\n" +
+                "0. Back \n");
+        try {
+            input = reader.nextInt();
+        }
+        catch (Exception e) {
+            System.out.println("Wrong input");
+        }
+        int value;
+        switch (input){
+        case 1:
+            System.out.println("Enter new Cache Expiration Time value (in minutes)");
+            try{
+                value = reader.nextInt();
+            }
+            catch(Exception e){
+                System.out.println("Wrong input! Enter an integer number next time.");
+                return;
+            }
+            red.setExpirationTime(value);
+            System.out.println("Cache Expiration Timer: "+red.getExpirationTime() + " minutes");
+            break;
+        case 2:
+            red.flushCache();
+            System.out.println("Cache Flushed");
+            break;
+        case 3:
+            System.out.println("###Cache Keys Start");
+            for (String key : red.getAllKeys())
+                System.out.println(key);
+            System.out.println("###Cache Keys End");
+            break;
+        case 0:
+            break;
+        default:
+            System.out.println("Incorrect option");
+            break;
         }
     }
 
@@ -696,20 +749,25 @@ public class Application {
             game_price = reader.nextDouble();
         }
         catch (Exception e){
-            System.out.println("Error: "+e.getMessage()+"\n input double number next time (user '.' instead of ',')");
+            System.out.println("Error: "+e.getClass().getSimpleName()+"\n input double number next time (use '.' instead of ',')");
             return null;
         }
         System.out.println("\nProduct type (\"Game\",\"DLC\" ): ");
         String game_producttype = breader.readLine();
+        if (game_producttype.toLowerCase().equals("game"))
+            game_producttype = "Game";
+        else if (game_producttype.toLowerCase().equals("dlc"))
+            game_producttype = "DLC";
+        else
+            return null;
         if(g!=null){
             g.setPrice(game_price);
             g.setDescription(game_description);
             g.setProduct_type(game_producttype);
             g.setTitle(game_title);
-
         }
         else
-            g= new Game(game_title,game_description,null,game_price,new Date(),game_producttype);
+            g = new Game(game_title,game_description,null,game_price,new Date(),game_producttype);
         return g;
     }
     private static Developer fillDeveloper(Developer d) throws IOException {
@@ -813,6 +871,8 @@ public class Application {
 
     //Linker GamesDevelopers
     private static GamesDevelopers createGamesDevelopers(Game g) throws IOException {
+        if(g==null)
+            return null;
         System.out.println("\nDeveloper name: ");
         String dev_name = breader.readLine();
         Developer game_dev = dao.getByName(Developer.class,dev_name);
@@ -830,6 +890,8 @@ public class Application {
         return null;
     }
     private static GamesDevelopers updateGamesDevelopers(Game g) throws IOException {
+        if(g==null)
+            return null;
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
         GamesDevelopers gd = null;
         for(GamesDevelopers i : gds)
@@ -852,6 +914,8 @@ public class Application {
         }
     }
     private static void readGamesDevelopers(Game g){
+        if(g==null)
+            return ;
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
         GamesDevelopers gd = null;
         for(GamesDevelopers i : gds)
@@ -868,6 +932,8 @@ public class Application {
         System.out.println("Developer: "+dev.getName());
     }
     private static void readGamesDevelopers(Developer dev){
+        if(dev==null)
+            return ;
         System.out.println("List of games by this dev:");
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
         if(gds.size() == 0){
@@ -889,6 +955,8 @@ public class Application {
         }
     }
     private static void deleteGamesDevelopers(Game g){
+        if(g==null)
+            return ;
         Set<GamesDevelopers> gds = dao.getAll(GamesDevelopers.class);
         for(GamesDevelopers gd : gds){
             if(gd.getId1()==g.getId())
@@ -898,6 +966,8 @@ public class Application {
 
     //Linker GamesPublishers
     private static GamesPublishers createGamesPublishers(Game g) throws IOException {
+        if(g==null)
+            return null;
         System.out.println("\nPublisher: ");
         String pub_name = breader.readLine();
         Publisher game_pub = dao.getByName(Publisher.class, pub_name);
@@ -913,6 +983,8 @@ public class Application {
         return null;
     }
     private static GamesPublishers updateGamesPublishers(Game g) throws IOException {
+        if(g==null)
+            return null;
         Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
         GamesPublishers gp=null;
         for(GamesPublishers i : gps)
@@ -936,6 +1008,8 @@ public class Application {
         }
     }
     private static void readGamesPublishers(Game g){
+        if(g==null)
+            return ;
         Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
         GamesPublishers gp = null;
         for(GamesPublishers i : gps)
@@ -952,6 +1026,8 @@ public class Application {
         System.out.println("Publisher: "+pub.getName());
     }
     private static void readGamesPublishers(Publisher pub){
+        if(pub==null)
+            return ;
         System.out.println("List of games by this pub:");
         Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
         for(GamesPublishers gp: gps){
@@ -973,6 +1049,8 @@ public class Application {
         }
     }
     private static void deleteGamesPublishers(Game g){
+        if(g==null)
+            return ;
         Set<GamesPublishers> gps = dao.getAll(GamesPublishers.class);
         for(GamesPublishers gp : gps){
             if(gp.getId1()==g.getId())
@@ -982,6 +1060,8 @@ public class Application {
 
     //Linker TransactionsGames
     private static ArrayList<TransactionsGames> createTransactionsGames(Transaction t) throws  IOException{
+        if(t==null)
+            return null;
         ArrayList<TransactionsGames> tgs = new ArrayList<>();
         System.out.println("Enter count of games in this transaction");
         int count = reader.nextInt();
@@ -1032,6 +1112,8 @@ public class Application {
         return new_tgs;
     }
     private static void readTransactionGames(Transaction t){
+        if(t==null)
+            return ;
         Set<TransactionsGames> tgs = dao.getAll(TransactionsGames.class);
         if(tgs.size() == 0){
             System.out.println("No games in this transaction 0_o");
@@ -1051,6 +1133,8 @@ public class Application {
     // createUsersGames unnecessary -> put into createTransactionGames
     // updateUsersGames unnecessary -> put into updateTransactionGame
     private static void readUsersGames(User u){
+        if(u==null)
+            return;
         Set<UsersGames> ugs = dao.getAll(UsersGames.class);
         if(ugs.size() == 0){
             System.out.println("No games owned by this user");

@@ -35,6 +35,8 @@ public final class BareboneDao implements DatabaseAccessObject{
 
     @Override
     public Integer merge(DbObject object) {
+        if (object == null)
+            return null;
         if (object.getClass().equals(User.class)) {
             return mergeUser((User) object);
         }
@@ -168,7 +170,7 @@ public final class BareboneDao implements DatabaseAccessObject{
             result = addUser.getInt(1);
             addUser.close();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e.getMessage().replace('\n',';'));
         }
         return result;
     }
@@ -213,6 +215,8 @@ public final class BareboneDao implements DatabaseAccessObject{
     }
 
     private User getUserByName(String nickName) {
+        if ("".equals(nickName))
+            return null;
         User u = null;
 
         try {
@@ -282,18 +286,17 @@ public final class BareboneDao implements DatabaseAccessObject{
         try {
             ResultSet rs;
             c.createStatement().executeUpdate(sql);
+            if (e.getId() == 0) {
+                List<Integer> ids = new ArrayList<Integer>();
+                for (Entity entity : getAll((Class<Entity>) e.getClass()))
+                    ids.add(entity.getId());
+                Collections.sort(ids);
+                setEntityId(e,ids.get(ids.size()-1));
+                return ids.get(ids.size()-1);
+            }
         } catch (Exception ex) {
             System.err.print(ex.getMessage());
         }
-        if (e.getId() == 0) {
-            List<Integer> ids = new ArrayList<Integer>();
-            for (Entity entity : getAll((Class<Entity>) e.getClass()))
-                ids.add(entity.getId());
-            Collections.sort(ids);
-            setEntityId(e,ids.get(ids.size()-1));
-            return ids.get(ids.size()-1);
-        }
-
         return null;
     }
     private void mergeLinker(Linker l) {
@@ -377,7 +380,7 @@ public final class BareboneDao implements DatabaseAccessObject{
         return sb.toString();
     }
     private String prepareUpdateStatement(Entity e) {
-        String dateFormat = "YYYY-MM-DD";
+        String dateFormat = "YYYY-MM-dd";
         DateFormat df = new SimpleDateFormat(dateFormat);
         StringBuilder sb = new StringBuilder("UPDATE ");
         Field[] fields = e.getClass().getDeclaredFields();

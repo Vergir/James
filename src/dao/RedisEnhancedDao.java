@@ -5,9 +5,11 @@ import dbobjects.entities.Entity;
 import dbobjects.entities.Nameable;
 import dbobjects.linkers.Linker;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanResult;
 
 import java.io.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,13 +38,15 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
     }
     private static void init(String username, String password, String redisHost) {
         instance.realDao = BareboneDao.getInstance(username, password);
-        instance.redis = new Jedis(redisHost);
+        instance.redis = new Jedis(redisHost, 6379, 10000);
         instance.flushCache();
     }
 
     @Override
     public Integer merge(DbObject object) {
-        byte[] flagKey = convertToBytes(object.getClass().getSimpleName()+"flag");
+        if(object == null)
+            return null;
+        byte[] flagKey = convertToBytes("FLAG:"+object.getClass().getSimpleName());
         redis.set(flagKey, convertToBytes(new Boolean((true))));
 
         return realDao.merge(object);
@@ -51,9 +55,9 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
     @Override
     public <T extends DbObject> Set<T> getAll(Class<T> returnType) {
         String classKey = returnType.getSimpleName();
-        byte[] dataKey = convertToBytes("All"+classKey+"data");
-        byte[] timeKey = convertToBytes("All"+classKey+"time");
-        byte[] flagKey = convertToBytes(classKey+"flag");
+        byte[] dataKey = convertToBytes("DATA:"+classKey+":ALL");
+        byte[] timeKey = convertToBytes("TIME:"+classKey+":ALL");
+        byte[] flagKey = convertToBytes("FLAG:"+classKey);
 
         if (cacheIsFresh(timeKey, flagKey))
             return  (Set<T>)convertFromBytes(redis.get(dataKey));
@@ -67,9 +71,9 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
     @Override
     public <T extends Entity> T getEntity(Class<T> returnType, int id) {
         String classKey = returnType.getSimpleName();
-        byte[] dataKey = convertToBytes("Entity"+classKey+id+"data");
-        byte[] timeKey = convertToBytes("Entity"+classKey+id+"time");
-        byte[] flagKey = convertToBytes(classKey+"flag");
+        byte[] dataKey = convertToBytes("DATA:"+classKey+":ID:"+id);
+        byte[] timeKey = convertToBytes("TIME:"+classKey+":ID:"+id);
+        byte[] flagKey = convertToBytes("FLAG:"+classKey);
 
         if (cacheIsFresh(timeKey, flagKey))
             return  (T)convertFromBytes(redis.get(dataKey));
@@ -80,13 +84,12 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
 
         return result;
     }
-
     @Override
     public <T extends Linker> T getLinker(Class<T> returnType, int id1, int id2) {
         String classKey = returnType.getSimpleName();
-        byte[] dataKey = convertToBytes("Linker"+classKey+id1+id2+"data");
-        byte[] timeKey = convertToBytes("Linker"+classKey+id1+id2+"time");
-        byte[] flagKey = convertToBytes(classKey+"flag");
+        byte[] dataKey = convertToBytes("DATA:"+classKey+":ID1:"+id1+":ID2:"+id2);
+        byte[] timeKey = convertToBytes("TIME:"+classKey+":ID1:"+id1+":ID2:"+id2);
+        byte[] flagKey = convertToBytes("FLAG:"+classKey);
 
         if (cacheIsFresh(timeKey, flagKey))
             return  (T)convertFromBytes(redis.get(dataKey));
@@ -102,9 +105,9 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
     @Override
     public <T extends Nameable> T getByName(Class<T> returnType, String name) {
         String classKey = returnType.getSimpleName();
-        byte[] dataKey = convertToBytes("Name"+classKey+name+"data");
-        byte[] timeKey = convertToBytes("Name"+classKey+name+"time");
-        byte[] flagKey = convertToBytes(classKey+"flag");
+        byte[] dataKey = convertToBytes("DATA:"+classKey+":NAME:"+name);
+        byte[] timeKey = convertToBytes("TIME:"+classKey+":NAME:"+name);
+        byte[] flagKey = convertToBytes("FLAG:"+classKey);
 
         if (cacheIsFresh(timeKey, flagKey))
             return  (T)convertFromBytes(redis.get(dataKey));
@@ -118,7 +121,9 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
 
     @Override
     public void delete(DbObject object) {
-        byte[] flagKey = convertToBytes(object.getClass().getSimpleName()+"flag");
+        if (object == null)
+            return;
+        byte[] flagKey = convertToBytes("FLAG:"+object.getClass().getSimpleName());
         redis.set(flagKey, convertToBytes(new Boolean((true))));
 
         realDao.delete(object);
@@ -127,7 +132,6 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
     public int getExpirationTime() {
         return expirationTime;
     }
-
     public void setExpirationTime(int expirationTime) {
         if (expirationTime > 0 && expirationTime < 20000)
             this.expirationTime = expirationTime;
@@ -135,6 +139,16 @@ public final class RedisEnhancedDao implements DatabaseAccessObject {
 
     public void flushCache() {
         redis.flushDB();
+    }
+
+    public int getCacheSize() {
+        return redis.scan(new byte[]{0}).getResult().size();
+    }
+    public Set<String> getAllKeys() {
+        Set<String> result = new HashSet<String>();
+        for (byte[] key : redis.scan(new byte[]{0}).getResult())
+            result.add((String)convertFromBytes(key));
+        return result;
     }
 
     private byte[] convertToBytes(Object object) {
