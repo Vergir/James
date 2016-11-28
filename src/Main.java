@@ -1,32 +1,28 @@
-import com.jcraft.jsch.*;
-import dao.DatabaseAccessObject;
+import dao.BareboneDao;
+import dao.RedisEnhancedDao;
 
-import javax.xml.crypto.Data;
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static java.lang.System.in;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main{
-
     static String username;
     static String password;
 
-    public static void main(String[] arg) {
-        if (arg.length != 2) {
-            System.err.println("2 arguments are necessary: username and password");
-            return;
+    public static void main(String[] arg) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        if(arg.length == 2) {
+            username=arg[0];
+            password=arg[1];
         }
-        username = arg[0];
-        password = arg[1];
-
-        DatabaseAccessObject dao = DatabaseAccessObject.getInstance(username, password);
-
-        for (String game : dao.GetGames()) {
-            System.out.println(game);
+        else {
+            System.out.println("Enter username/password :");
+            username = br.readLine();
+            password = br.readLine();
         }
+
+        RedisEnhancedDao dao = RedisEnhancedDao.getInstance(username, password, "46.101.212.60");
+        //BareboneDao dao = BareboneDao.getInstance(username,password);
+        Application.start(dao);
     }
 }
