@@ -1,8 +1,7 @@
 package dao;
 
-import dbobjects.DbObject;
-import dbobjects.entities.Entity;
-import dbobjects.entities.Nameable;
+import dbobjects.interfaces.DbObject;
+import dbobjects.interfaces.Nameable;
 import redis.clients.jedis.Jedis;
 
 import java.io.*;
@@ -42,7 +41,7 @@ public final class RedisMongoDao implements DatabaseAccessObject {
     }
 
     @Override
-    public Integer merge(DbObject object) {
+    public BigInteger merge(DbObject object) {
         if(object == null)
             return null;
         byte[] flagKey = convertToBytes("FLAG:"+object.getClass().getSimpleName());
@@ -68,7 +67,7 @@ public final class RedisMongoDao implements DatabaseAccessObject {
         return result;
     }
     @Override
-    public <T extends Entity> T getEntity(Class<T> returnType, BigInteger id) {
+    public <T extends DbObject> T getDbObject(Class<T> returnType, BigInteger id) {
         String classKey = returnType.getSimpleName();
         byte[] dataKey = convertToBytes("DATA:"+classKey+":ID:"+id);
         byte[] timeKey = convertToBytes("TIME:"+classKey+":ID:"+id);
@@ -76,7 +75,7 @@ public final class RedisMongoDao implements DatabaseAccessObject {
 
         if (cacheIsFresh(timeKey, flagKey))
             return  (T)convertFromBytes(redis.get(dataKey));
-        T result = realDao.getEntity(returnType, id);
+        T result = realDao.getDbObject(returnType, id);
         redis.set(dataKey, convertToBytes(result));
         redis.set(timeKey, convertToBytes(new Date()));
         redis.set(flagKey, convertToBytes(new Boolean(false)));
@@ -85,7 +84,7 @@ public final class RedisMongoDao implements DatabaseAccessObject {
     }
 
     @Override
-    public <T extends Nameable> T getByName(Class<T> returnType, String name) {
+    public <T extends DbObject, Nameable> T getByName(Class<T> returnType, String name) {
         String classKey = returnType.getSimpleName();
         byte[] dataKey = convertToBytes("DATA:"+classKey+":NAME:"+name);
         byte[] timeKey = convertToBytes("TIME:"+classKey+":NAME:"+name);

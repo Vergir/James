@@ -1,10 +1,7 @@
-package dbobjects.entities;
+package dbobjects.classes;
 
-import com.mongodb.Block;
-import com.mongodb.client.FindIterable;
-import dbobjects.DbObject;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import dbobjects.interfaces.DbObject;
+import dbobjects.interfaces.Nameable;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -12,14 +9,14 @@ import java.util.*;
 /**
  * Created by Vergir on 31/10/2016.
  */
-public class User implements Entity, Nameable{
+public class User implements DbObject, Nameable {
     BigInteger id;
     String nickName;
     String firstName;
     String lastName;
     String email;
-    Date registered;
-    double balance;
+    Date registrationDate;
+    Double balance;
     Set<BigInteger> games;
 
     public User(){}
@@ -37,7 +34,6 @@ public class User implements Entity, Nameable{
     public BigInteger getId() {
         return id;
     }
-    @Override
     public String getName() {
         return nickName;
     }
@@ -53,10 +49,10 @@ public class User implements Entity, Nameable{
     public String getEmail() {
         return email;
     }
-    public Date getRegistered() {
-        return registered;
+    public Date getRegistrationDate() {
+        return registrationDate;
     }
-    public double getBalance() {
+    public Double getBalance() {
         return balance;
     }
     public Set<BigInteger> getGames() {
@@ -75,10 +71,10 @@ public class User implements Entity, Nameable{
     public void setEmail(String email) {
         this.email = email;
     }
-    public void setRegistered(Date registered) {
-        this.registered = registered;
+    public void setRegistrationDate(Date registrationDate) {
+        this.registrationDate = registrationDate;
     }
-    public void setBalance(double balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
     public void setGames(Set<BigInteger> games) {
@@ -86,19 +82,8 @@ public class User implements Entity, Nameable{
     }
 
     @Override
-    public DbObject fromDocument(Document doc) {
-        id = new BigInteger(doc.getObjectId("_id").toByteArray());
-        nickName = doc.getString("Nickname");
-        firstName = doc.getString("First_Name");
-        lastName = doc.getString("Last_Name");
-        email = doc.getString("Email");
-        registered = doc.getDate("Registration");
-        balance = doc.getDouble("balance");
-        games = new HashSet<BigInteger>();
-        for (Object o : (ArrayList<Object>)doc.get("Games"))
-            games.add(new BigInteger(((ObjectId)o).toByteArray()));
-
-        return this;
+    public String getNameField() {
+        return "nickName";
     }
 
     @Override
@@ -109,7 +94,7 @@ public class User implements Entity, Nameable{
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", registered=" + registered +
+                ", registrationDate=" + registrationDate +
                 ", balance=" + balance +
                 ", games=" + games +
                 '}';

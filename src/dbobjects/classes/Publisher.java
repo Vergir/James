@@ -1,37 +1,38 @@
-package dbobjects.entities;
+package dbobjects.classes;
 
-import dbobjects.DbObject;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import dbobjects.interfaces.DbObject;
+import dbobjects.interfaces.Nameable;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
-public class Developer implements Entity, Nameable {
+/**
+ * Created by Stanislav on 31.10.2016.
+ * stas33553377@yandex.ru
+ */
+
+
+public class Publisher implements DbObject, Nameable {
     private BigInteger id;
     private String name;
     private String address;
     private String email;
     private Set<BigInteger> games;
 
-    public Developer(){}
-    public Developer(String name, String address, String email){
+    public Publisher(){}
+    public Publisher(String name, String address, String email){
         if (name == null || address == null || email == null)
-            throw new NullPointerException("initialization info for Developer is invalid");
+            throw new NullPointerException("initialization info for Publisher is invalid");
 
         this.name = name;
         this.address = address;
         this.email = email;
     }
 
-
     @Override
     public BigInteger getId() {
         return id;
     }
-    @Override
     public String getName() {
         return name;
     }
@@ -59,21 +60,8 @@ public class Developer implements Entity, Nameable {
     }
 
     @Override
-    public DbObject fromDocument(Document doc) {
-        id = new BigInteger(doc.getObjectId("_id").toByteArray());
-        name = doc.getString("Name");
-        email = doc.getString("Email");
-        address = doc.getString("Address");
-        games = new HashSet<>();
-        for (Object o : (ArrayList<Object>)doc.get("Games"))
-            games.add(new BigInteger(((ObjectId)o).toByteArray()));
-
-        return this;
-    }
-
-    @Override
     public String toString() {
-        return "Developer{" +
+        return "Publisher{" +
                 "id=..." + id.toString(16).substring(18) +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
@@ -82,3 +70,4 @@ public class Developer implements Entity, Nameable {
                 '}';
     }
 }
+

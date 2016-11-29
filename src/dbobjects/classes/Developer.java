@@ -1,42 +1,38 @@
-package dbobjects.entities;
+package dbobjects.classes;
 
-import dbobjects.DbObject;
+import dbobjects.interfaces.DbObject;
+import dbobjects.interfaces.Nameable;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-/**
- * Created by Stanislav on 31.10.2016.
- * stas33553377@yandex.ru
- */
-
-
-public class Publisher implements Entity, Nameable {
+public class Developer implements DbObject, Nameable {
     private BigInteger id;
     private String name;
     private String address;
     private String email;
     private Set<BigInteger> games;
 
-    public Publisher(){}
-    public Publisher(String name, String address, String email){
+    public Developer(){}
+    public Developer(String name, String address, String email){
         if (name == null || address == null || email == null)
-            throw new NullPointerException("initialization info for Publisher is invalid");
+            throw new NullPointerException("initialization info for Developer is invalid");
 
         this.name = name;
         this.address = address;
         this.email = email;
     }
 
+
     @Override
     public BigInteger getId() {
         return id;
     }
-    @Override
     public String getName() {
         return name;
     }
@@ -45,6 +41,9 @@ public class Publisher implements Entity, Nameable {
     }
     public String getEmail() {
         return email;
+    }
+    public Set<BigInteger> getGames() {
+        return games;
     }
 
     public void setName(String name) {
@@ -56,28 +55,18 @@ public class Publisher implements Entity, Nameable {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    @Override
-    public DbObject fromDocument(Document doc) {
-        id = new BigInteger(doc.getObjectId("_id").toByteArray());
-        name = doc.getString("Name");
-        email = doc.getString("Email");
-        address = doc.getString("Address");
-        games = new HashSet<>();
-        for (Object o : (ArrayList<Object>)doc.get("Games"))
-            games.add(new BigInteger(((ObjectId)o).toByteArray()));
-
-        return this;
+    public void setGames(Set<BigInteger> games) {
+        this.games = games;
     }
 
     @Override
     public String toString() {
-        return "Publisher{" +
+        return "Developer{" +
                 "id=..." + id.toString(16).substring(18) +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", email='" + email + '\'' +
+                ", games=" + games +
                 '}';
     }
 }
-

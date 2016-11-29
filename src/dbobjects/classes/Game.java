@@ -1,34 +1,33 @@
-package dbobjects.entities;
+package dbobjects.classes;
 
-import dbobjects.DbObject;
-import org.bson.Document;
+import dbobjects.interfaces.DbObject;
+import dbobjects.interfaces.Nameable;
 
 import java.math.BigInteger;
 import java.util.Date;
 
-public class Game implements Entity, Nameable {
+public class Game implements DbObject, Nameable {
     BigInteger id;
     String title;
     String description;
-    double price;
-    Date released;
+    Double price;
+    Date releaseDate;
 
     public Game(){}
-    public Game (String title, String description, double price, Date released){
-        if(title == null || description == null || released == null)
+    public Game (String title, String description, double price, Date releaseDate){
+        if(title == null || description == null || releaseDate == null)
             throw new NullPointerException("initialization info for Game is invalid");
 
         this.title=title;
         this.description=description;
         this.price=price;
-        this.released=released;
+        this.releaseDate = releaseDate;
     }
 
     @Override
     public BigInteger getId() {
         return id;
     }
-    @Override
     public String getName() {
         return title;
     }
@@ -38,11 +37,11 @@ public class Game implements Entity, Nameable {
     public String getDescription() {
         return description;
     }
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
-    public Date getReleased() {
-        return released;
+    public Date getReleaseDate() {
+        return releaseDate;
     }
 
     public void setTitle(String t) {
@@ -51,22 +50,16 @@ public class Game implements Entity, Nameable {
     public void setDescription(String d) {
         this.description = d;
     }
-    public void setPrice(double p) {
+    public void setPrice(Double p) {
         this.price = p;
     }
-    public void setReleased(Date r) {
-        this.released = r;
+    public void setReleaseDate(Date r) {
+        this.releaseDate = r;
     }
 
     @Override
-    public DbObject fromDocument(Document doc) {
-        id = new BigInteger(doc.getObjectId("_id").toByteArray());
-        title = doc.getString("Title");
-        description = doc.getString("Description");
-        price = doc.getDouble("Price");
-        released = doc.getDate("ReleaseDate");
-
-        return this;
+    public String getNameField() {
+        return "title";
     }
 
     @Override
@@ -76,7 +69,7 @@ public class Game implements Entity, Nameable {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
-                ", released=" + released +
+                ", releaseDate=" + releaseDate +
                 '}';
     }
 }

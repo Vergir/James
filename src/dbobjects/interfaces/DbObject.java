@@ -1,13 +1,11 @@
-package dbobjects;
-
-import org.bson.Document;
+package dbobjects.interfaces;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
+import java.math.BigInteger;
 
 /**
  * Created by Vergir on 05/11/2016.
  */
 public interface DbObject extends Serializable {
-    DbObject fromDocument(Document doc);
+    BigInteger getId();
 }

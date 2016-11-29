@@ -1,5 +1,5 @@
 import dao.MongoDao;
-import dbobjects.entities.*;
+import dbobjects.classes.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,10 +32,7 @@ public class Main{
         //RedisMongoDao dao = RedisMongoDao.getInstance(username, password, "46.101.212.60");
         MongoDao dao = MongoDao.getInstance(username,password, dbHost);
 
-        Set<Game> games = dao.getAll(Game.class);
-
-        Game xcom = dao.getByName(Game.class, "XCOM2");
-        User Stas = dao.getByName(User.class, "Lepec1n");
-        Publisher twoK = dao.getByName(Publisher.class, "2k");
+        for(Object o : dao.getAll(Transaction.class))
+            System.out.println(o);
     }
 }
