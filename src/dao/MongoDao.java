@@ -1,15 +1,15 @@
 package dao;
 
-import com.mongodb.Block;
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import dbobjects.DbObject;
 import dbobjects.entities.*;
-import oracle.jdbc.internal.OracleTypes;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.sql.*;
@@ -17,7 +17,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.function.Consumer;
 
 public final class MongoDao implements DatabaseAccessObject{
     private static MongoDao instance;
@@ -37,8 +36,6 @@ public final class MongoDao implements DatabaseAccessObject{
 
     @Override
     public Integer merge(DbObject object) {
-        if (object == null)
-            return null;
 //        if (object.getClass().equals(User.class)) {
 //            return mergeUser((User) object);
 
@@ -68,44 +65,35 @@ public final class MongoDao implements DatabaseAccessObject{
     }
     @Override
     public <T extends Entity> T getEntity(Class<T> returnType, BigInteger id) {
-        Document d = instance.db.getCollection(returnType.getSimpleName()+"s").find().first();
-
-//        if (returnType.equals(User.class)) {
-//            for (User u : getAllUsers())
-//                if (u.getId() == id)
-//                    return (T) u;
-//            return null;
-//        }
         T entity = null;
-        try {
-            //ResultSet results = db.createStatement().executeQuery("SELECT * FROM " + returnType.getSimpleName().toUpperCase()+ "S WHERE Id = " + id);
-            ResultSet results = null;
-//            if (results.next())
-//                entity = (T) returnType.newInstance().fromResultSet(results);
-        } catch (Exception e) {
-            System.err.print(e.getMessage());
-        }
+
+        Document d = instance.db.getCollection(returnType.getSimpleName()+"s").find(Filters.eq("_id",new ObjectId(id.toByteArray()))).first();
+
+        if (d != null)
+            try {
+                entity = (T)returnType.newInstance().fromDocument(d);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
         return entity;
     }
     @Override
     public <T extends Nameable> T getByName(Class<T> returnType, String name) {
-        String dbName;
-//        if (returnType.equals(User.class))
-//            return (T) getUserByName(name);
-        if (returnType.equals(Game.class))
-            dbName = "Title";
-        else
-            dbName = "Name";
-
+        String dbNameField = getDbNameField(returnType);
         T entity = null;
-        try {
-            //ResultSet results = db.createStatement().executeQuery("SELECT r.* FROM " + returnType.getSimpleName().toUpperCase() + "S r WHERE r." + dbName + " = '" + name + "'");
-            ResultSet results = null;
-//            if (results.next())
-//                entity = (T) returnType.newInstance().fromResultSet(results);
-        } catch (Exception e) {
-            System.err.print(e.getMessage());
-        }
+
+        Document d = instance.db.getCollection(returnType.getSimpleName()+"s").find(Filters.eq(dbNameField,name)).first();
+
+        if (d != null)
+            try {
+                entity = (T)returnType.newInstance().fromDocument(d);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
         return entity;
     }
     @Override
@@ -119,12 +107,25 @@ public final class MongoDao implements DatabaseAccessObject{
 
     //Service methods
     private static void init(String username, String password, String dbHost) {
-        MongoClient mc = new MongoClient(dbHost);
-        instance.db = mc.getDatabase("test");
-
+        instance.db = new MongoClient(dbHost).getDatabase("test");
         if (instance.db == null) {
             System.err.println("Unknown error when creating a connection...");
         }
+    }
+
+    private String getDbNameField(Class c) {
+        for (Field f : c.getDeclaredFields()) {
+            String fieldName = f.getName().toLowerCase();
+            if (fieldName.equals("name"))
+                return "Name";
+            if (fieldName.equals("nickname"))
+                return "Nickname";
+            if (fieldName.equals("title"))
+                return "Title";
+            if (fieldName.equals("nick_name"))
+                return "Nick_name";
+        }
+        return null;
     }
 
     private Integer mergeEntity(Entity e) {
