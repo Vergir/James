@@ -1,7 +1,13 @@
 package dbobjects.entities;
 
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import dbobjects.DbObject;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Stanislav on 31.10.2016.
@@ -10,13 +16,13 @@ import java.sql.ResultSet;
 
 
 public class Publisher implements Entity, Nameable {
-    private int id;
+    private BigInteger id;
     private String name;
     private String address;
     private String email;
+    private Set<BigInteger> games;
 
     public Publisher(){}
-
     public Publisher(String name, String address, String email){
         if (name == null || address == null || email == null)
             throw new NullPointerException("initialization info for Publisher is invalid");
@@ -26,27 +32,8 @@ public class Publisher implements Entity, Nameable {
         this.email = email;
     }
 
-    private Publisher(int id, String name, String address, String email) {
-        this(name, address, email);
-        this.id = id;
-    }
-
     @Override
-    public Entity fromResultSet(ResultSet rs) {
-        try {
-            this.id = rs.getInt("Id");
-            this.name = rs.getString("Name");
-            this.address = rs.getString("Address");
-            this.email = rs.getString("Email");
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
     @Override
@@ -63,23 +50,34 @@ public class Publisher implements Entity, Nameable {
     public void setName(String name) {
         this.name = name;
     }
-
     public void setAddress(String address) {
         this.address = address;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
     @Override
-    public String toString(){
-        return "Publisher: \n" +
-                " id: "+id+
-                "\n Name: "+name+
-                "\n Address: "+address+
-                "\n Email: "+email+"\n";
+    public DbObject fromDocument(Document doc) {
+        id = new BigInteger(doc.getObjectId("_id").toByteArray());
+        name = doc.getString("Name");
+        email = doc.getString("Email");
+        address = doc.getString("Address");
+        games = new HashSet<>();
+        for (Object o : (ArrayList<Object>)doc.get("Games"))
+            games.add(new BigInteger(((ObjectId)o).toByteArray()));
+
+        return this;
     }
 
+    @Override
+    public String toString() {
+        return "Publisher{" +
+                "id=..." + id.toString(16).substring(18) +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
 

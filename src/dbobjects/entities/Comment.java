@@ -1,8 +1,9 @@
 
 package dbobjects.entities;
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import dbobjects.DbObject;
+import org.bson.Document;
+
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -11,51 +12,35 @@ import java.util.Date;
  */
 public class Comment implements Entity {
 
-    private int id;
-    private int user_id;
-    private int game_id;
+    private BigInteger id;
+    private BigInteger userId;
+    private BigInteger gameId;
     private int score;
     private String content;
-    private Date c_Date;
+    private Date writeDate;
 
     public Comment(){}
-    public Comment(int user_id, int game_id, int score, String content, Date c_Date){
-        if (c_Date == null || content == null)
+    public Comment(BigInteger userId, BigInteger gameId, int score, String content, Date writeDate){
+        if (writeDate == null || content == null)
             throw new NullPointerException("initialization info for Comment is invalid");
 
-        this.user_id = user_id;
-        this.game_id = game_id;
+        this.userId = userId;
+        this.gameId = gameId;
         this.score = score;
         this.content = content;
-        this.c_Date = c_Date;
+        this.writeDate = writeDate;
     }
 
     @Override
-    public Entity fromResultSet(ResultSet rs) {
-        try {
-            this.id = rs.getInt("Id");
-            this.user_id = rs.getInt("User_id");
-            this.game_id = rs.getInt("Game_id");
-            this.score = rs.getInt("Score");
-            this.content = rs.getString("Content");
-            this.c_Date = rs.getDate("C_Date");
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public BigInteger getUserId() {
+        return userId;
     }
-    public int getGame_id() {
-        return game_id;
+    public BigInteger getGameId() {
+        return gameId;
     }
     public int getScore() {
         return score;
@@ -63,34 +48,48 @@ public class Comment implements Entity {
     public String getContent() {
         return content;
     }
-    public Date getC_Date() {
-        return c_Date;
+    public Date getWriteDate() {
+        return writeDate;
     }
 
-    public void setUser_id(int u_id) {
-        this.user_id = u_id;
+    public void setUserId(BigInteger u_id) {
+        this.userId = u_id;
     }
     public void setScore(int score) {
         this.score = score;
     }
-    public void setGame_id(int game_id) {
-        this.game_id = game_id;
+    public void setGameId(BigInteger gameId) {
+        this.gameId = gameId;
     }
     public void setContent(String content) {
         this.content = content;
     }
-    public void setC_Date(Date c_Date) {
-        this.c_Date = c_Date;
+    public void setWriteDate(Date writeDate) {
+        this.writeDate = writeDate;
     }
 
     @Override
-    public String toString(){
-        return "Comment: \n" +
-                " id: "+id+
-                "\n User_id: "+user_id+
-                "\n Game_id: "+game_id+
-                "\n Score: "+score+
-                "\n Content: "+content+
-                "\n Email: "+c_Date+"\n";
+    public DbObject fromDocument(Document doc) {
+        id = new BigInteger(doc.getObjectId("_id").toByteArray());
+        userId = new BigInteger(doc.getObjectId("User").toByteArray());
+        gameId = new BigInteger(doc.getObjectId("Game").toByteArray());
+        content = doc.getString("Content");
+        score = doc.getDouble("Score").intValue();
+        writeDate = doc.getDate("C_Date");
+
+
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=..." + id.toString(16).substring(18) +
+                ", userId=..." + userId.toString(16).substring(18) +
+                ", gameId=..." + gameId.toString(16).substring(18) +
+                ", score=" + score +
+                ", content='" + content + '\'' +
+                ", writeDate=" + writeDate +
+                '}';
     }
 }

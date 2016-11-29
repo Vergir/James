@@ -1,16 +1,22 @@
 package dbobjects.entities;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import dbobjects.DbObject;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Developer implements Entity, Nameable {
-    private int id;
+    private BigInteger id;
     private String name;
     private String address;
     private String email;
+    private Set<BigInteger> games;
 
     public Developer(){}
-
     public Developer(String name, String address, String email){
         if (name == null || address == null || email == null)
             throw new NullPointerException("initialization info for Developer is invalid");
@@ -20,22 +26,9 @@ public class Developer implements Entity, Nameable {
         this.email = email;
     }
 
-    @Override
-    public Entity fromResultSet(ResultSet rs) {
-        try {
-            this.id = rs.getInt("Id");
-            this.name = rs.getString("Name");
-            this.address = rs.getString("Address");
-            this.email = rs.getString("Email");
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
 
     @Override
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
     @Override
@@ -48,25 +41,44 @@ public class Developer implements Entity, Nameable {
     public String getEmail() {
         return email;
     }
+    public Set<BigInteger> getGames() {
+        return games;
+    }
 
     public void setName(String name) {
         this.name = name;
     }
-
     public void setAddress(String address) {
         this.address = address;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
+    public void setGames(Set<BigInteger> games) {
+        this.games = games;
+    }
 
     @Override
-    public String toString(){
-        return "Developer: \n" +
-                " id: "+id+
-                "\n Name: "+name+
-                "\n Address: "+address+
-                "\n Email: "+email+"\n";
+    public DbObject fromDocument(Document doc) {
+        id = new BigInteger(doc.getObjectId("_id").toByteArray());
+        name = doc.getString("Name");
+        email = doc.getString("Email");
+        address = doc.getString("Address");
+        games = new HashSet<>();
+        for (Object o : (ArrayList<Object>)doc.get("Games"))
+            games.add(new BigInteger(((ObjectId)o).toByteArray()));
+
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Developer{" +
+                "id=..." + id.toString(16).substring(18) +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", email='" + email + '\'' +
+                ", games=" + games +
+                '}';
     }
 }

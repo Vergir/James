@@ -1,78 +1,48 @@
 package dbobjects.entities;
 
-import java.sql.Blob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import dbobjects.DbObject;
+import org.bson.Document;
+
+import java.math.BigInteger;
 import java.util.Date;
 
 public class Game implements Entity, Nameable {
-    int id;
+    BigInteger id;
     String title;
     String description;
-    Blob cover;
     double price;
     Date released;
-    String product_type;
 
     public Game(){}
-
-    public Game (String title, String description, Blob cover, double price, Date released, String product_type){
-        if(title == null || description == null|| released == null || product_type == null)
+    public Game (String title, String description, double price, Date released){
+        if(title == null || description == null || released == null)
             throw new NullPointerException("initialization info for Game is invalid");
 
         this.title=title;
         this.description=description;
-        this.cover=cover;
         this.price=price;
-        this.cover=cover;
         this.released=released;
-        this.product_type=product_type;
     }
 
     @Override
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
-
-    @Override
-    public Entity fromResultSet(ResultSet rs) {
-        try {
-            this.id = rs.getInt("Id");
-            this.title = rs.getString("Title");
-            this.description = rs.getString("Description");
-            this.cover = rs.getBlob("Cover");
-            this.price = rs.getDouble("Price");
-            this.released = rs.getDate("Released");
-            this.product_type = rs.getString("Product_type");
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
     @Override
     public String getName() {
         return title;
     }
-
     public String getTitle() {
         return title;
     }
     public String getDescription() {
         return description;
     }
-    public Blob getcover() {
-        return cover;
-    }
     public double getPrice() {
         return price;
     }
-    public java.util.Date getReleased() {
+    public Date getReleased() {
         return released;
-    }
-    public String getProduct_type() {
-        return product_type;
     }
 
     public void setTitle(String t) {
@@ -81,27 +51,32 @@ public class Game implements Entity, Nameable {
     public void setDescription(String d) {
         this.description = d;
     }
-    public void setCover(Blob c) {
-        this.cover = c;
-    }
     public void setPrice(double p) {
         this.price = p;
     }
     public void setReleased(Date r) {
         this.released = r;
     }
-    public void setProduct_type(String p) {
-        this.product_type = p;
+
+    @Override
+    public DbObject fromDocument(Document doc) {
+        id = new BigInteger(doc.getObjectId("_id").toByteArray());
+        title = doc.getString("Title");
+        description = doc.getString("Description");
+        price = doc.getDouble("Price");
+        released = doc.getDate("ReleaseDate");
+
+        return this;
     }
 
     @Override
-    public String toString(){
-        return "Game: \n" +
-                " id: "+id+
-                "\n Title: "+title+
-                "\n Description: "+description+
-                "\n Price: "+price+
-                "\n Released: "+released+
-                "\n Product type: "+product_type+"\n";
+    public String toString() {
+        return "Game{" +
+                "id=..." + id.toString(16).substring(18) +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", released=" + released +
+                '}';
     }
 }
