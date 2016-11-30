@@ -11,13 +11,13 @@ import java.util.*;
  */
 public interface DatabaseAccessObject {
     //C*U*
-    BigInteger merge(DbObject object);
+    BigInteger upsert(DbObject object);
 
     //*R**
     <T extends DbObject> Set<T> getAll(Class<T> returnType);
     <T extends DbObject> T getDbObject(Class<T> returnType, BigInteger id);
-    <T extends DbObject, Nameable> T getByName(Class<T> returnType, String name);
+    <T extends DbObject & Nameable> T getByName(Class<T> returnType, String name);
 
     //***D
-    void delete(DbObject object);
+    BigInteger delete(DbObject object);
 }

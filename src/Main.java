@@ -1,9 +1,8 @@
 import dao.MongoDao;
 import dbobjects.classes.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.Set;
 
 public class Main{
@@ -13,7 +12,6 @@ public class Main{
     static String redisHost;
 
     public static void main(String[] arg) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         if(arg.length > 1) {
             username=arg[0];
             password=arg[1];
@@ -23,16 +21,11 @@ public class Main{
                     redisHost = arg[3];
             }
         }
-        else {
-            System.out.println("Enter username/password :");
-            username = br.readLine();
-            password = br.readLine();
-        }
-
-        //RedisMongoDao dao = RedisMongoDao.getInstance(username, password, "46.101.212.60");
         MongoDao dao = MongoDao.getInstance(username,password, dbHost);
 
-        for(Object o : dao.getAll(Transaction.class))
-            System.out.println(o);
+        Set<Game> games = dao.getAll(Game.class);
+
+        Game lol = games.iterator().next();
+        Game lulULU = new Game("lmao", "test", 400, new Date());
     }
 }

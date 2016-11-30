@@ -41,13 +41,13 @@ public final class RedisMongoDao implements DatabaseAccessObject {
     }
 
     @Override
-    public BigInteger merge(DbObject object) {
+    public BigInteger upsert(DbObject object) {
         if(object == null)
             return null;
         byte[] flagKey = convertToBytes("FLAG:"+object.getClass().getSimpleName());
         redis.set(flagKey, convertToBytes(new Boolean((true))));
 
-        return realDao.merge(object);
+        return realDao.upsert(object);
     }
 
     @Override
@@ -84,7 +84,7 @@ public final class RedisMongoDao implements DatabaseAccessObject {
     }
 
     @Override
-    public <T extends DbObject, Nameable> T getByName(Class<T> returnType, String name) {
+    public <T extends DbObject & Nameable> T getByName(Class<T> returnType, String name) {
         String classKey = returnType.getSimpleName();
         byte[] dataKey = convertToBytes("DATA:"+classKey+":NAME:"+name);
         byte[] timeKey = convertToBytes("TIME:"+classKey+":NAME:"+name);
@@ -101,13 +101,15 @@ public final class RedisMongoDao implements DatabaseAccessObject {
     }
 
     @Override
-    public void delete(DbObject object) {
+    public BigInteger delete(DbObject object) {
         if (object == null)
-            return;
+            return null;
         byte[] flagKey = convertToBytes("FLAG:"+object.getClass().getSimpleName());
         redis.set(flagKey, convertToBytes(new Boolean((true))));
 
         realDao.delete(object);
+
+        return null;
     }
 
     public int getExpirationTime() {
