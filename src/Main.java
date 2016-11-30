@@ -1,9 +1,6 @@
-import dao.MongoDao;
-import dbobjects.classes.*;
+import ui.Menu;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Set;
 
 public class Main{
     static String username;
@@ -21,11 +18,12 @@ public class Main{
                     redisHost = arg[3];
             }
         }
-        MongoDao dao = MongoDao.getInstance(username,password, dbHost);
+        //MongoDao dao = MongoDao.getInstance(username,password, dbHost);
+        //Set<Game> games = dao.getAll(Game.class);
 
-        Set<Game> games = dao.getAll(Game.class);
-
-        Game lol = games.iterator().next();
-        Game lulULU = new Game("lmao", "test", 400, new Date());
+        Menu lul = new Menu("LMAO", null, null, true);
+        lul.addItem("nope", (x) -> {System.out.print("nope"); return null;});
+        lul.addItem("yeah", (x) -> {System.out.print("yeah"); return null;});
+        lul.start();
     }
 }

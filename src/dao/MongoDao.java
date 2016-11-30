@@ -200,12 +200,11 @@ public final class MongoDao implements DatabaseAccessObject{
                 return;
             if (possibleIdFields.size() > 1) {
                 BigInteger currentId = object.getId();
-                for (Field f : possibleIdFields) {
+                for (Field f : possibleIdFields)
                     if ((currentId == null && (f.get(object) == null)) || (currentId != null && currentId.equals(f.get(object))))
                         continue;
                     else
                         possibleIdFields.remove(f);
-                }
             }
             if (possibleIdFields.size() > 1) {
                 for (Field f : possibleIdFields)
