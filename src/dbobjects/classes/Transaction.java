@@ -59,8 +59,8 @@ public class Transaction implements DbObject{
     @Override
     public String toString() {
         return "Transaction{" +
-                "id=..." + id.toString(16).substring(18) +
-                ", userId=..." + userId.toString(16).substring(18) +
+                "id=" + id.toString(16) +
+                ", userId=" + userId.toString(16) +
                 ", sum=" + sum +
                 ", transactionDate=" + transactionDate +
                 ", games=" + games +

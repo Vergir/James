@@ -62,7 +62,7 @@ public class Publisher implements DbObject, Nameable {
     @Override
     public String toString() {
         return "Publisher{" +
-                "id=..." + id.toString(16).substring(18) +
+                "id=" + id.toString(16) +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", email='" + email + '\'' +

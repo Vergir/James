@@ -65,7 +65,7 @@ public class Game implements DbObject, Nameable {
     @Override
     public String toString() {
         return "Game{" +
-                "id=..." + id.toString(16).substring(18) +
+                "id=" + id.toString(16) +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +

@@ -21,6 +21,14 @@ public class Menu {
         items = new LinkedHashMap<>();
     }
 
+    public Menu(String name, Object functionArgument, boolean lastItemIsZero) {
+        this.name = (name == null) ? "" : name;
+        this.functionArgument = functionArgument;
+        this.lastItemIsZero = lastItemIsZero;
+    }
+    public Menu(String name) {
+        this.name = (name == null) ? "" : name;
+    }
     public Menu(String name, LinkedHashMap<String, Function<Object, Object>> items, Object functionArgument, boolean lastItemIsZero) {
         this.name = (name == null) ? "" : name;
         this.items = (items != null) ? items: this.getItems();

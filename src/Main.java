@@ -1,3 +1,5 @@
+import app.Application;
+import dao.MongoDao;
 import ui.Menu;
 
 import java.io.IOException;
@@ -9,6 +11,7 @@ public class Main{
     static String redisHost;
 
     public static void main(String[] arg) throws IOException {
+        //TODO: make DbObjects' toString() show collections of Ids as hex numbers, not 10-base numbers
         if(arg.length > 1) {
             username=arg[0];
             password=arg[1];
@@ -18,12 +21,9 @@ public class Main{
                     redisHost = arg[3];
             }
         }
-        //MongoDao dao = MongoDao.getInstance(username,password, dbHost);
+        MongoDao dao = MongoDao.getInstance(username,password, dbHost);
         //Set<Game> games = dao.getAll(Game.class);
 
-        Menu lul = new Menu("LMAO", null, null, true);
-        lul.addItem("nope", (x) -> {System.out.print("nope"); return null;});
-        lul.addItem("yeah", (x) -> {System.out.print("yeah"); return null;});
-        lul.start();
+        Application.start(dao);
     }
 }

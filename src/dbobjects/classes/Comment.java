@@ -68,9 +68,9 @@ public class Comment implements DbObject {
     @Override
     public String toString() {
         return "Comment{" +
-                "id=..." + id.toString(16).substring(18) +
-                ", userId=..." + userId.toString(16).substring(18) +
-                ", gameId=..." + gameId.toString(16).substring(18) +
+                "id=" + id.toString(16) +
+                ", userId=" + userId.toString(16) +
+                ", gameId=" + gameId.toString(16) +
                 ", score=" + score +
                 ", content='" + content + '\'' +
                 ", writeDate=" + writeDate +

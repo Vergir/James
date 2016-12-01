@@ -5,5 +5,6 @@ package app;
  */
 public enum OperationResult {
     SUCCESS,
-    ERROR
+    ERROR,
+    NONE
 }

@@ -89,7 +89,7 @@ public class User implements DbObject, Nameable {
     @Override
     public String toString() {
         return "User{" +
-                "id=..." + id.toString(16).substring(18) +
+                "id=" + id.toString(16) +
                 ", nickName='" + nickName + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
