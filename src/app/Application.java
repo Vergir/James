@@ -2,18 +2,16 @@ package app;
 
 import dao.DatabaseAccessObject;
 import dbobjects.classes.*;
-import dbobjects.interfaces.DbObject;
-import dbobjects.interfaces.Nameable;
+import dbobjects.interfaces.*;
 import ui.Menu;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
 import static app.OperationResult.*;
+import static app.OperationType.*;
 
 /**
  * Created by Vergir on 01/12/2016.
@@ -24,6 +22,7 @@ public class Application {
     private static final Menu mainMenu;
     private static Menu classMenu;
     private static Menu selectMenu;
+    private static Menu updateMenu;
     //State objects
     private static Class activeClass;
     private static DbObject activeDbObject;
@@ -44,11 +43,14 @@ public class Application {
 
     public static void start(DatabaseAccessObject dao) {
         Application.dao = dao;
+        DbObjectPrinter.dao = dao;
+        Validator.dao = dao;
+
         OperationResult opResult = NONE;
         while (true) {
-            System.out.println('\n');
+            System.out.print('\n');
             if (opResult != NONE){
-                System.out.println("Last Operation Status: " + opResult);
+                System.out.println("Last Operation Status: " + opResult.getMessage());
                 opResult = NONE;
             }
             activeObject = null;
@@ -58,7 +60,6 @@ public class Application {
             else
                 opResult = (OperationResult) mainMenu.start();
         }
-
     }
 
     private static OperationResult doOperation(OperationType opType){
@@ -79,7 +80,7 @@ public class Application {
                     return SUCCESS;
                 }
                 else
-                    return ERROR;
+                    return ERROR_NOTFOUND;
             case READ_NAME:
                 result = dao.getByName(activeClass, (String) activeObject);
                 if (result != null) {
@@ -88,30 +89,30 @@ public class Application {
                     return SUCCESS;
                 }
                 else
-                    return ERROR;
+                    return ERROR_NOTFOUND;
             case CREATE:
                 result = dao.upsert(activeDbObject);
                 if (result != null)
                     return SUCCESS;
                 else
-                    return ERROR;
+                    return ERROR_DAO;
             case UPDATE:
                 result = dao.upsert(activeDbObject);
                 if (result != null)
                     return SUCCESS;
                 else
-                    return ERROR;
+                    return ERROR_DAO;
             case DELETE:
                 result = dao.delete(activeDbObject);
+                activeDbObject = null;
                 if (result != null)
                     return SUCCESS;
                 else
-                    return ERROR;
+                    return ERROR_DAO;
             default:
-                return ERROR;
+                return ERROR_GENERIC;
         }
     }
-
     private static OperationResult prepareFor(OperationType opType) {
         Scanner reader = new Scanner(System.in);
         switch (opType){
@@ -123,28 +124,48 @@ public class Application {
                     activeObject = reader.nextBigInteger(16);
                     return SUCCESS;
                 }
-                return ERROR;
+                return ERROR_VALIDATION;
             case READ_NAME:
                 System.out.println("Please input Name (String)");
                 if (reader.hasNext()) {
                     activeObject = reader.next();
                     return SUCCESS;
                 }
-                return ERROR;
+                return ERROR_VALIDATION;
+            case CREATE:
+                return getFullObjectInput();
+            case UPDATE:
+                if (activeDbObject != null)
+                    return SUCCESS;
+                return ERROR_NOACTIVEOBJECT;
+            case DELETE:
+                if (activeDbObject != null)
+                    return SUCCESS;
+                return ERROR_GENERIC;
             default:
-                return ERROR;
+                return ERROR_NOACTIVEOBJECT;
         }
     }
 
     private static <T extends DbObject> Object prepareAndStartClassMenu(Class<T> c) {
         activeClass = c;
         createClassMenu();
-        printActiveDbObject();
+        System.out.print("Active Object: ");
+        if (activeDbObject == null)
+            System.out.println("none (Update and Delete Disabled)");
+        else
+            DbObjectPrinter.printSummaryOf(activeDbObject);
         return classMenu.start();
     }
     private static Object prepareAndStartSelectMenu() {
         createSelectMenu();
         return selectMenu.start();
+    }
+    private static Object prepareAndStartUpdateMenu() {
+        System.out.println("Object to update");
+        DbObjectPrinter.print(activeDbObject);
+        createUpdateMenu();
+        return updateMenu.start();
     }
 
     private static void createSelectMenu() {
@@ -162,69 +183,56 @@ public class Application {
                 .addItem("Create", (x) -> doOperation(OperationType.CREATE))
                 ;
         if (activeDbObject != null)
-            classMenu.addItem("Update", (x) -> doOperation(OperationType.UPDATE))
+            classMenu.addItem("Update", (x) -> prepareAndStartUpdateMenu())
                     .addItem("Delete", (x) -> doOperation(OperationType.DELETE))
                     ;
         classMenu.addItem("Get Back", (x) -> {activeClass=null;activeDbObject=null;return NONE;}).setLastItemIsZero(true);
     }
+    private static void createUpdateMenu() {
 
-    private static void printActiveDbObject() {
-        System.out.print("Selected Object: ");
-        if (activeDbObject == null) {
-            System.out.println("none (Update and Delete Disabled)");
-            return;
-        }
-        System.out.print(activeDbObject.getClass().getSimpleName());
-        System.out.print("{id: " + activeDbObject.getId().toString(16));
-        if (Nameable.class.isAssignableFrom(activeDbObject.getClass())) {
-            String nameFieldName = ((Nameable) activeDbObject).getNameField();
-            String name = null;
-            try {
-                Field nameField = activeDbObject.getClass().getDeclaredField(nameFieldName);
-                nameField.setAccessible(true);
-                name = (String)nameField.get(activeDbObject);
-            } catch (Exception e) {e.printStackTrace();}
-            System.out.print(", "+nameFieldName+": "+name);
-        }
-        System.out.println("}");
+        updateMenu = new Menu("Fields to Update").addItem("Update All Fields", (x -> getFullObjectInput()));
+        try {
+            for (Field f : activeClass.getDeclaredFields()) {
+                f.setAccessible(true);
+                if (f.getName().toLowerCase().equals("id"))
+                    continue;
+                updateMenu.addItem("Update " + f.getName(), (x) -> getValidatedInputAndUpdate(f));
+            }
+        } catch (Exception e) { e.printStackTrace();}
+        updateMenu.addItem("Get back", (x) -> prepareAndStartClassMenu(activeClass)).setLastItemIsZero(true);
     }
+
     private static void printReadResult() {
         if (activeObject instanceof Set)
             for (DbObject o : (Set<DbObject>)activeObject)
-                System.out.println(o);
+                DbObjectPrinter.print(o);
         else
-            prettyPrintActiveDbObject();
+                DbObjectPrinter.printWithExpansions(activeDbObject);
     }
-    private static void prettyPrintActiveDbObject() {
-        System.out.println(activeDbObject.getClass().getSimpleName());
-        System.out.println("ID: " + activeDbObject.getId().toString(16));
 
+    private static OperationResult getFullObjectInput() {
+        OperationResult opResult = NONE;
+        DbObject newDbObject = null;
         try {
-            for (Field f : activeDbObject.getClass().getDeclaredFields()) {
+            newDbObject = (DbObject)activeClass.newInstance();
+            for (Field f : activeClass.getDeclaredFields()) {
                 f.setAccessible(true);
-                if (Collection.class.isAssignableFrom(f.getType()))
+                if (f.getName().toLowerCase().equals("id"))
                     continue;
-                if (f.getType().equals(BigInteger.class))
-                    continue;
-                System.out.println(f.getName() + ": " + f.get(activeDbObject));
+                opResult = Validator.getValidatedInput(newDbObject, f);
+                if (opResult != SUCCESS)
+                    return opResult;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        printForeignFieldsOfActiveDbObject();
+        } catch (Exception e) { e.printStackTrace();}
+        activeDbObject = newDbObject;
+        return SUCCESS;
     }
-    private static void printForeignFieldsOfActiveDbObject() {
-        if (activeDbObject.getClass().equals(Developer.class)) {
-            Developer devOrPub = (Developer)activeDbObject;
-            System.out.println("games:");
-            Set<Game> games = new HashSet<>();
-            for (BigInteger id : devOrPub.getGames())
-                games.add(dao.getDbObject(Game.class, id));
-            for (Game g : games)
-                System.out.println("  id: " + g.getId().toString(16) + "; name: " + g.getName());
-            if (games.size() == 0)
-                System.out.println("  No games found");
-        }
+
+    private static OperationResult getValidatedInputAndUpdate(Field f) {
+        OperationResult opResult = Validator.getValidatedInput(activeDbObject, f);
+        if (opResult != SUCCESS)
+            return opResult;
+        else
+            return doOperation(UPDATE);
     }
 }

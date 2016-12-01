@@ -26,16 +26,15 @@ public final class RedisMongoDao implements DatabaseAccessObject {
             throw new ExceptionInInitializerError("Tried to initialize singleton");
     }
 
-    public static RedisMongoDao getInstance(String username, String password, String dbHost, String redisHost) {
-        if (username == null || password == null || redisHost == null)
-            throw new NullPointerException("username/password combination is invalid");
+    public static RedisMongoDao getInstance(String dbHost, String redisHost) {
         if (instance == null)
             instance = new RedisMongoDao();
-        init(username, password, dbHost, redisHost);
+        init(dbHost, redisHost);
+
         return instance;
     }
-    private static void init(String username, String password, String dbHost, String redisHost) {
-        instance.realDao = MongoDao.getInstance(username, password, dbHost);
+    private static void init(String dbHost, String redisHost) {
+        instance.realDao = MongoDao.getInstance(dbHost);
         instance.redis = new Jedis(redisHost, 6379, 10000);
         instance.flushCache();
     }

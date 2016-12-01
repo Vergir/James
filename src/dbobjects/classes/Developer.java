@@ -61,12 +61,19 @@ public class Developer implements DbObject, Nameable {
 
     @Override
     public String toString() {
+        StringBuilder gamesSb = new StringBuilder("[");
+        for (BigInteger id : games)
+            gamesSb.append(id.toString(16)).append(',');
+        if (games.size() > 0)
+            gamesSb.deleteCharAt(gamesSb.length()-1);
+        gamesSb.append(']');
+
         return "Developer{" +
                 "id=" + id.toString(16) +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", email='" + email + '\'' +
-                ", games=" + games +
+                ", games=" + gamesSb +
                 '}';
     }
 }

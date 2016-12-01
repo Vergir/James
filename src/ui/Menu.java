@@ -82,11 +82,12 @@ public class Menu {
             reader = new Scanner(System.in);
             if (reader.hasNextInt()) {
                 input = reader.nextInt();
-                if (isInsidePossibleRange(input))
+                if (isInsidePossibleRange(input)) {
                     if (input == 0)
-                        return items.get(items.keySet().toArray()[items.size()-1]).apply(functionArgument);
+                        return items.get(items.keySet().toArray()[items.size() - 1]).apply(functionArgument);
                     else
                         return items.get(items.keySet().toArray()[input - 1]).apply(functionArgument);
+                }
             }
             System.out.println("Wrong input, please try again");
         }

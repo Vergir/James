@@ -58,12 +58,19 @@ public class Transaction implements DbObject{
 
     @Override
     public String toString() {
+        StringBuilder gamesSb = new StringBuilder("[");
+        for (BigInteger id : games)
+            gamesSb.append(id.toString(16)).append(',');
+        if (games.size() > 0)
+            gamesSb.deleteCharAt(gamesSb.length()-1);
+        gamesSb.append(']');
+
         return "Transaction{" +
                 "id=" + id.toString(16) +
                 ", userId=" + userId.toString(16) +
                 ", sum=" + sum +
                 ", transactionDate=" + transactionDate +
-                ", games=" + games +
+                ", games=" + gamesSb +
                 '}';
     }
 }

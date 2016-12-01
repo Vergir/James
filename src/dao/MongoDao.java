@@ -29,10 +29,10 @@ public final class MongoDao implements DatabaseAccessObject{
             throw new ExceptionInInitializerError("Tried to initialize singleton");
     }
 
-    public static MongoDao getInstance(String username, String password, String dbHost) {
+    public static MongoDao getInstance(String dbHost) {
         if (instance == null)
             instance = new MongoDao();
-        init(username, password, dbHost);
+        init(dbHost);
         return instance;
     }
 
@@ -56,6 +56,8 @@ public final class MongoDao implements DatabaseAccessObject{
     }
     @Override
     public <T extends DbObject> T getDbObject(Class<T> returnType, BigInteger id) {
+        if (id.bitLength() > 96 || id.bitLength() < 12)
+            return null;
         T entity = null;
         Document findResult = instance.db.getCollection(returnType.getSimpleName()+"s").find(Filters.eq(new ObjectId(id.toByteArray()))).first();
         if (findResult != null)
@@ -86,7 +88,7 @@ public final class MongoDao implements DatabaseAccessObject{
     }
 
     //Service methods
-    private static void init(String username, String password, String dbHost) {
+    private static void init(String dbHost) {
         instance.db = new MongoClient(dbHost).getDatabase("test");
         if (instance.db == null) {
             System.err.println("Unknown error when creating a connection...");

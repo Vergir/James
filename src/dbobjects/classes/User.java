@@ -88,6 +88,13 @@ public class User implements DbObject, Nameable {
 
     @Override
     public String toString() {
+        StringBuilder gamesSb = new StringBuilder("[");
+        for (BigInteger id : games)
+            gamesSb.append(id.toString(16)).append(',');
+        if (games.size() > 0)
+            gamesSb.deleteCharAt(gamesSb.length()-1);
+        gamesSb.append(']');
+
         return "User{" +
                 "id=" + id.toString(16) +
                 ", nickName='" + nickName + '\'' +
@@ -96,7 +103,7 @@ public class User implements DbObject, Nameable {
                 ", email='" + email + '\'' +
                 ", registrationDate=" + registrationDate +
                 ", balance=" + balance +
-                ", games=" + games +
+                ", games=" + gamesSb +
                 '}';
     }
 }
