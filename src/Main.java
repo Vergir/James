@@ -1,6 +1,9 @@
 import app.Application;
+import dao.DatabaseAccessObject;
 import dao.MongoDao;
+import dao.RedisMongoDao;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -28,10 +31,11 @@ public class Main{
             if (arg.length > 1)
                 redisHost = arg[1];
         }
+        toggleErrorStream();
+        //DatabaseAccessObject dao = MongoDao.getInstance(dbHost);
+        DatabaseAccessObject dao = RedisMongoDao.getInstance(dbHost, redisHost);
+        toggleErrorStream();
 
-        toggleErrorStream();
-        MongoDao dao = MongoDao.getInstance(dbHost);
-        toggleErrorStream();
         Application.start(dao);
     }
 }
