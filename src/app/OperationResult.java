@@ -10,6 +10,7 @@ public enum OperationResult {
     ERROR_VALIDATION("Input did not pass validation"),
     ERROR_DAO("Something is wrong with DB (check it's log)"),
     ERROR_NOACTIVEOBJECT("There is no Active Object to apply operation to"),
+    INFO_REDISNOTCONNECTED("Redis is not connected"),
     NONE (null);
 
     private String message;

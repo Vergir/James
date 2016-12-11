@@ -56,7 +56,7 @@ public final class MongoDao implements DatabaseAccessObject{
     }
     @Override
     public <T extends DbObject> T getDbObject(Class<T> returnType, BigInteger id) {
-        if (id.bitLength() > 96 || id.bitLength() < 12)
+        if (id.bitLength() > 96 || id.bitLength() < 48)
             return null;
         T entity = null;
         Document findResult = instance.db.getCollection(returnType.getSimpleName()+"s").find(Filters.eq(new ObjectId(id.toByteArray()))).first();

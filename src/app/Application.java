@@ -1,6 +1,7 @@
 package app;
 
 import dao.DatabaseAccessObject;
+import dao.RedisMongoDao;
 import dbobjects.classes.*;
 import dbobjects.interfaces.*;
 import ui.Menu;
@@ -19,7 +20,8 @@ import static app.OperationType.*;
 public class Application {
     private static DatabaseAccessObject dao;
     //Menu objects
-    private static final Menu mainMenu;
+    private static Menu mainMenu;
+    private static final Menu redisMenu;
     private static Menu classMenu;
     private static Menu selectMenu;
     private static Menu updateMenu;
@@ -29,6 +31,17 @@ public class Application {
     private static Object activeObject;
 
     static {
+        redisMenu = new Menu("Redis")
+                .addItem("Get All Keys", (x) -> {
+                    System.out.println("Keys: ");
+                    ((RedisMongoDao) dao).getAllKeys().forEach((key) -> System.out.println(key));
+                    return null;
+                })
+                .addItem("Flush Cache", (x) -> {((RedisMongoDao) dao).flushCache(); return null;})
+                .addItem("Get Back", (x) -> {return null;})
+                .setLastItemIsZero(true)
+        ;
+
         mainMenu = new Menu("Main Menu")
                 .addItem("Comments", (x) -> prepareAndStartClassMenu(Comment.class))
                 .addItem("Developers", (x) -> prepareAndStartClassMenu(Developer.class))
@@ -36,9 +49,11 @@ public class Application {
                 .addItem("Publishers", (x) -> prepareAndStartClassMenu(Publisher.class))
                 .addItem("Transactions", (x) -> prepareAndStartClassMenu(Transaction.class))
                 .addItem("Users", (x) -> prepareAndStartClassMenu(User.class))
+                .addItem("Redis", (x) -> tryStartRedis())
                 .addItem("Exit", (x) -> {System.exit(0); return null;})
                 .setLastItemIsZero(true)
                 ;
+
     }
 
     public static void start(DatabaseAccessObject dao) {
@@ -54,11 +69,14 @@ public class Application {
                 opResult = NONE;
             }
             activeObject = null;
-            if (activeClass != null) {
+            if (activeClass != null)
                 opResult = (OperationResult) prepareAndStartClassMenu(activeClass);
-            }
-            else
+            else {
+                if (dao instanceof RedisMongoDao) {
+                    RedisMongoDao rmd = ((RedisMongoDao) dao);
+                }
                 opResult = (OperationResult) mainMenu.start();
+            }
         }
     }
 
@@ -234,5 +252,13 @@ public class Application {
             return opResult;
         else
             return doOperation(UPDATE);
+    }
+
+    private static OperationResult tryStartRedis() {
+        if (!(dao instanceof RedisMongoDao))
+            return INFO_REDISNOTCONNECTED;
+        System.out.println(((RedisMongoDao) dao).getCacheSize() + " Keys");
+        redisMenu.start();
+        return SUCCESS;
     }
 }

@@ -17,7 +17,7 @@ public class User implements DbObject, Nameable {
     String email;
     Date registrationDate;
     Double balance;
-    Set<BigInteger> games;
+    Set<BigInteger> games = new HashSet<>();
 
     public User(){}
     public User(String nick, String first, String last, String email){

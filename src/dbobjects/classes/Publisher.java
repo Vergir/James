@@ -4,6 +4,7 @@ import dbobjects.interfaces.DbObject;
 import dbobjects.interfaces.Nameable;
 
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -17,7 +18,7 @@ public class Publisher implements DbObject, Nameable {
     private String name;
     private String address;
     private String email;
-    private Set<BigInteger> games;
+    private Set<BigInteger> games = new HashSet<>();
 
     public Publisher(){}
     public Publisher(String name, String address, String email){

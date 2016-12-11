@@ -16,7 +16,7 @@ public class Developer implements DbObject, Nameable {
     private String name;
     private String address;
     private String email;
-    private Set<BigInteger> games;
+    private Set<BigInteger> games = new HashSet<>();
 
     public Developer(){}
     public Developer(String name, String address, String email){
@@ -27,7 +27,6 @@ public class Developer implements DbObject, Nameable {
         this.address = address;
         this.email = email;
     }
-
 
     @Override
     public BigInteger getId() {

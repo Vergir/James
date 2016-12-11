@@ -37,7 +37,7 @@ public class Validator {
     }
 
     private static OperationResult getValidatedInputForComment(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if ("userId".equals(field.getName())) {
             System.out.println("Please input User Id (24-digit hex number)");
@@ -98,7 +98,7 @@ public class Validator {
         return ERROR_GENERIC;
     }
     private static OperationResult getValidatedInputForDeveloper(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if ("name".equals(field.getName())) {
             System.out.println("Please input Developer's name (any text)");
@@ -143,7 +143,7 @@ public class Validator {
             for (BigInteger id : ids)
                 if (dao.getDbObject(Game.class, id) == null)
                     ids.remove(id);
-            System.out.println("There were " + ids.size() + "valid ids. Input 'yes' if you agree with that");
+            System.out.println("There were " + ids.size() + " valid ids. Input 'yes' if you agree with that");
             if (reader.next().toLowerCase().equals("yes")) {
                 try {
                     field.set(dbObject, ids);
@@ -157,7 +157,7 @@ public class Validator {
         return ERROR_GENERIC;
     }
     private static OperationResult getValidatedInputForGame(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if("title".equals(field.getName())){
             System.out.println("Please input Game's Title");
@@ -207,7 +207,7 @@ public class Validator {
         return ERROR_GENERIC;
     }
     private static OperationResult getValidatedInputForTransaction(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if ("userId".equals(field.getName())) {
             System.out.println("Please input User Id for transaction (24-digit hex number)");
@@ -253,7 +253,7 @@ public class Validator {
             for (BigInteger id : ids)
                 if (dao.getDbObject(Game.class, id) == null)
                     ids.remove(id);
-            System.out.println("There were " + ids.size() + "valid ids. Input 'yes' if you agree with that");
+            System.out.println("There were " + ids.size() + " valid ids. Input 'yes' if you agree with that");
             if (reader.next().toLowerCase().equals("yes")) {
                 try {
                     field.set(dbObject, ids);
@@ -268,7 +268,7 @@ public class Validator {
         return ERROR_GENERIC;
     }
     private static OperationResult getValidatedInputForPublisher(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if (field.getName().equals("name")) {
             System.out.println("Please input Publisher's name (any text)");
@@ -313,7 +313,7 @@ public class Validator {
             for (BigInteger id : ids)
                 if (dao.getDbObject(Game.class, id) == null)
                     ids.remove(id);
-            System.out.println("There were " + ids.size() + "valid ids. Input 'yes' if you agree with that");
+            System.out.println("There were " + ids.size() + " valid ids. Input 'yes' if you agree with that");
             if (reader.next().toLowerCase().equals("yes")) {
                 try {
                     field.set(dbObject, ids);
@@ -327,7 +327,7 @@ public class Validator {
         return ERROR_GENERIC;
     }
     private static OperationResult getValidatedInputForUser(DbObject dbObject, Field field) {
-        reader = new Scanner(System.in);
+        reader = new Scanner(System.in).useDelimiter("\n");
 
         if("nickName".equals(field.getName())){
             System.out.println("Please input User's Nickname");
@@ -407,7 +407,7 @@ public class Validator {
             for (BigInteger id : ids)
                 if (dao.getDbObject(Game.class, id) == null)
                     ids.remove(id);
-            System.out.println("There were " + ids.size() + "valid ids. Input 'yes' if you agree with that");
+            System.out.println("There were " + ids.size() + " valid ids. Input 'yes' if you agree with that");
             if (reader.next().toLowerCase().equals("yes")) {
                 try {
                     field.set(dbObject, ids);

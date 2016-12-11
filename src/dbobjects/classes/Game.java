@@ -5,6 +5,7 @@ import dbobjects.interfaces.Nameable;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.HashSet;
 
 public class Game implements DbObject, Nameable {
     BigInteger id;

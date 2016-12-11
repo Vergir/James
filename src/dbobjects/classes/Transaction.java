@@ -3,6 +3,7 @@ import dbobjects.interfaces.DbObject;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ public class Transaction implements DbObject{
     private BigInteger userId;
     private Double sum;
     private Date transactionDate;
-    private Set<BigInteger> games;
+    private Set<BigInteger> games = new HashSet<>();
 
     public Transaction(){}
     public Transaction(BigInteger userId, Double sum, Date transactionDate){
