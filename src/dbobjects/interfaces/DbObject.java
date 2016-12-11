@@ -1,11 +1,11 @@
-package dbobjects;
+package dbobjects.interfaces;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
+import java.math.BigInteger;
 
 /**
  * Created by Vergir on 05/11/2016.
  */
 public interface DbObject extends Serializable {
-    public DbObject fromResultSet(ResultSet rs);
+    BigInteger getId();
 }
